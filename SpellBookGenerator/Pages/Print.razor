@@ -35,6 +35,8 @@
 
 @code {
     private Dictionary<int, List<SelectedSpell>> _spellByGrade = new();
+
+    [SupplyParameterFromQuery] public string ReturnPath { get; set; } = "/";
     
     protected override async Task OnInitializedAsync()
     {
@@ -59,7 +61,7 @@
         {
             // Hacky Way to open the print dialog with this pages content an without actually navigating to it.
             await Js.InvokeVoidAsync("print");
-            NavManager.NavigateTo("/");
+            NavManager.NavigateTo(ReturnPath);
         }
     }
 

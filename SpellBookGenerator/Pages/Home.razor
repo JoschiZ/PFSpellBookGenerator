@@ -212,7 +212,8 @@ Wish"
     private async Task GoToPrint()
     {
         await LocalStorage.SetItemAsync("spells", _selectedSpells);
-        NavManager.NavigateTo("print");
+        var returnUri = NavManager.ToBaseRelativePath(NavManager.Uri);
+        NavManager.NavigateTo($"print?returnPath={returnUri}");
     }
 
     private async Task<IEnumerable<Spell>> SearchSpell(string spellName)
