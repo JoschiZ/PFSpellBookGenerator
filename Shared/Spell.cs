@@ -1,4 +1,6 @@
-﻿namespace Shared;
+﻿using System.Reflection;
+
+namespace Shared;
 
 public class Spell
 {
@@ -15,9 +17,7 @@ public class Spell
     public string SavingThrow { get; set; } = "";
     public string SpellResistance { get; set; } = "";
     public string DescriptionFormatted { get; set; } = "";
-    public string Magus { get; set; } = "";
-    
-    public SpellGrades SpellGrades { get; set; }
+    public SpellGrades SpellGrades { get; set; } = new();
     public string ShortDescription { get; set; } = "";
     public string Source { get; set; } = "";
 }
@@ -49,4 +49,44 @@ public class SpellGrades
     public int? Skald { get; set; }
     public int? Investigator { get; set; }
     public int? Hunter { get; set; }
+
+    public int GetLowestSpellGrade()
+    {
+        var grades = typeof(SpellGrades).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        return (int)grades
+            .Select(info => (int?)info.GetValue(this))
+            .Where(grade => grade.HasValue)
+            .Min()!; // There is always at least on class with a non null value
+    }
+
+    public int? GetGradeForClass(Classes classes) => classes switch
+    {
+        Classes.AllSpells => GetLowestSpellGrade(),
+        Classes.Sorcerer => Sorcerer,
+        Classes.Wizard => Wizard,
+        Classes.Cleric => Cleric,
+        Classes.Druid => Druid,
+        Classes.Ranger => Ranger,
+        Classes.Bard => Bard,
+        Classes.Paladin => Paladin,
+        Classes.Alchemist => Alchemist,
+        Classes.Summoner => Summoner,
+        Classes.Witch => Witch,
+        Classes.Inquisitor => Inquisitor,
+        Classes.Oracle => Oracle,
+        Classes.AntiPaladin => AntiPaladin,
+        Classes.Magus => Magus,
+        Classes.Adept => Adept,
+        Classes.BloodRager => BloodRager,
+        Classes.Shaman => Shaman,
+        Classes.Psychic => Psychic,
+        Classes.Medium => Medium,
+        Classes.Mesmerist => Mesmerist,
+        Classes.Occultist => Occultist,
+        Classes.Spiritualist => Spiritualist,
+        Classes.Skald => Skald,
+        Classes.Investigator => Investigator,
+        Classes.Hunter => Hunter,
+        _ => throw new ArgumentOutOfRangeException(nameof(classes), classes, null)
+    };
 }

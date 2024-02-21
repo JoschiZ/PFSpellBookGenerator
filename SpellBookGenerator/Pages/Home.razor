@@ -7,21 +7,51 @@
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavManager
 
-<div style="display: flex; margin-top: 2rem">
-    <MudToggleGroup Vertical SelectionMode="SelectionMode.MultiSelection" @bind-Values="@SpellService.DataToLoad" Style="margin-right: 2rem">
-        @foreach (var classList in Enum.GetValues<Classes>().OrderBy(classes => classes.ToString()))
-        {
-            <MudToggleItem Value="classList"/>
-        }
-    </MudToggleGroup>
-    <div>
+<MudText Color="Color.Primary" Typo="Typo.h2">Pathfinder Spell Book Generator</MudText>
+
+<MudCard Style="margin-bottom: 2rem">
+    <MudCardContent>
+        <MudText>
+            To select spell you need to select a class first. This class will be used to determine the grade of your spells.
+            If you select spells that aren't on your spell list, or choose "AllSpells" as your class, the lowest available grade will be chosen.
+            Changing your selected class will only affect newly added spells!
+            You can change all details on every spell in the preview table down below.
+        </MudText>
+        <MudStack Row>
+            <MudSelect @ref="@_spellListSelect" Variant="Variant.Filled" OnClose="() => _spellListSelect?.ForceUpdate() ?? Task.CompletedTask"  HelperText="Select a Class" T="@Classes" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
+                @foreach (var classList in Enum.GetValues<Classes>())
+                {
+                    <MudSelectItem T="Classes" Value="classList"></MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect Variant="Variant.Filled" HelperText="Spell data to load" @ref="_spellListToLoadSelect" MultiSelection @bind-SelectedValues="@SpellService.DataToLoad" Style="margin-right: 2rem">
+                @foreach (var classList in Enum.GetValues<Classes>().OrderBy(classes => classes.ToString()))
+                {
+                    <MudSelectItem Value="classList"/>
+                }
+            </MudSelect>
+        </MudStack>
+
+    </MudCardContent>
+</MudCard>
+
+
+@if (SpellService.DataToLoad.Any())
+{
         <MudGrid Justify="Justify.SpaceEvenly" Spacing="3" Style="margin-bottom: 2rem">
             <MudCard Style="width: 40%">
                 <MudCardHeader>
                     <MudText Typo="Typo.h3" Color="Color.Primary">Mass Import</MudText>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudTextField AutoGrow Lines="5" Variant="Variant.Outlined"  @bind-Value="@_massImport"/>
+                    <MudTextField 
+                        Placeholder
+                        =
+                        "Light
+Fireball
+Wish" 
+                        AutoGrow Lines="5" MaxLines="10" Variant="Variant.Outlined" @bind-Value="@_massImport"/>
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton OnClick="@(() => CheckSpells(_massImport))" Variant="Variant.Filled" Color="Color.Primary">Add Spells</MudButton>
@@ -44,56 +74,75 @@
                 </MudCardContent>
             </MudCard>
         </MudGrid>
+}
+
+<MudCard>
+    <MudCardContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GoToPrint">Print</MudButton>
+        <MudDataGrid ReadOnly="false" EditMode="DataGridEditMode.Form" @ref="@_spellGrid" Groupable GroupExpanded="false" Filterable Items="_selectedSpells">
+            <Columns>
+                <HierarchyColumn/>
+                <PropertyColumn Title="Grade" IsEditable Property="arg => arg.CurrentSpellGrade" Grouping GroupBy="spell => spell.CurrentSpellGrade">
+                    <GroupTemplate>
+                        <span style="font-weight: bold">Grade: @context.Grouping.Key <MudChip Color="Color.Info" Variant="Variant.Outlined">total: @context.Grouping.Count()</MudChip></span>
+                    </GroupTemplate>
+                </PropertyColumn>
+                <PropertyColumn Property="spell => spell.Spell.Name"/>
+                
+                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.School"/>
+                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.SubSchool"/>
+                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.Descriptor"/>
+                <TemplateColumn Title="School">
+                    <CellTemplate>
+                        @context.Item?.Spell.School <EmptyHelper Content="@context.Item?.Spell.SubSchool">(@context.Item?.Spell.SubSchool)</EmptyHelper> <EmptyHelper Content="@context.Item?.Spell.Descriptor">[@context.Item?.Spell.Descriptor]</EmptyHelper>
+                    </CellTemplate>
+                </TemplateColumn>
+                
+                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.Range"/>
+                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.Targets"/>
+                <TemplateColumn Title="Range/Targets">
+                    <CellTemplate>
+                        @context.Item?.Spell.Range <EmptyHelper Content="@context.Item?.Spell.Targets">(@context.Item?.Spell.Targets)</EmptyHelper>
+                    </CellTemplate>
+                </TemplateColumn>
+                
+                <PropertyColumn Property="arg => arg.Spell.CastingTime"/>
+                <PropertyColumn Required="false" Property="spell => spell.Spell.Duration"/>
+
+                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.SpellResistance"/>
+                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.SavingThrow"/>
+                <TemplateColumn  Sortable="false" Title="Save/SR">
+                    <CellTemplate>
+                        @context.Item?.Spell.SavingThrow <EmptyHelper Content="@context.Item?.Spell.SpellResistance">(SR: @context.Item?.Spell.SpellResistance)</EmptyHelper>
+                    </CellTemplate>
+                </TemplateColumn>
+                
+                
+                <PropertyColumn Required="false" Property="arg => arg.Spell.Components"/>
+                <PropertyColumn Property="arg => arg.Spell.ShortDescription"/>
+                <TemplateColumn Filterable="false" Sortable="false" ShowColumnOptions="false" ShowFilterIcon="false">
+                    <CellTemplate>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => UnselectSpell(context.Item)">Remove</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+                
+                <TemplateColumn Filterable="false" Sortable="false" ShowColumnOptions="false" ShowFilterIcon="false">
+                    <CellTemplate>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <ChildRowContent>
+                @((MarkupString) context.Item.Spell.DescriptionFormatted)
+            </ChildRowContent>
+        </MudDataGrid>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
+    </MudCardActions>
+</MudCard>
 
 
-        <MudCard>
-            <MudCardContent>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GoToPrint">Print</MudButton>
-                <MudDataGrid @ref="@_spellGrid" Groupable GroupExpanded="false" Filterable Items="_selectedSpells">
-                    <Columns>
-                        <HierarchyColumn/>
-                        <PropertyColumn Property="@(spell => spell.Magus)" Grouping GroupBy="spell => spell.Magus">
-                            <GroupTemplate>
-                                <span style="font-weight: bold">Grade: @context.Grouping.Key <MudChip Color="Color.Info" Variant="Variant.Outlined">total: @context.Grouping.Count()</MudChip></span>
-                            </GroupTemplate>
-                        </PropertyColumn>
-                        <PropertyColumn Property="spell => spell.Name"/>
-                        <TemplateColumn>
-                            <CellTemplate>
-                                @context.Item?.School <EmptyHelper Content="@context.Item?.SubSchool">(@context.Item?.SubSchool)</EmptyHelper> <EmptyHelper Content="@context.Item?.Descriptor">[@context.Item?.Descriptor]</EmptyHelper>
-                            </CellTemplate>
-                        </TemplateColumn>
-                        <TemplateColumn>
-                            <CellTemplate>
-                                @context.Item?.Range <EmptyHelper Content="@context.Item?.Targets">(@context.Item?.Targets)</EmptyHelper>
-                            </CellTemplate>
-                        </TemplateColumn>
-                        <PropertyColumn Property="arg => arg.CastingTime"/>
-                        <PropertyColumn Property="spell => spell.Duration"/>
-                        <TemplateColumn>
-                            <CellTemplate>
-                                @context.Item?.SavingThrow <EmptyHelper Content="@context.Item?.SpellResistance">(SR: @context.Item?.SpellResistance)</EmptyHelper>
-                            </CellTemplate>
-                        </TemplateColumn>
-                        <PropertyColumn Property="arg => arg.Components"/>
-                        <PropertyColumn Property="arg => arg.ShortDescription"/>
-                        <TemplateColumn>
-                            <CellTemplate>
-                                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => UnselectSpell(context.Item)">Remove</MudButton>
-                            </CellTemplate>
-                        </TemplateColumn>
-                    </Columns>
-                    <ChildRowContent>
-                        @((MarkupString) context.Item.DescriptionFormatted)
-                    </ChildRowContent>
-                </MudDataGrid>
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
-            </MudCardActions>
-        </MudCard>
-    </div>
-</div>
 
 
 
@@ -101,12 +150,16 @@
 @code
 {
     private string _massImport = "";
-    private readonly ObservableCollection<Spell> _selectedSpells = [];
-    private MudDataGrid<Spell>? _spellGrid;
+    private readonly ObservableCollection<SelectedSpell> _selectedSpells = [];
+    private MudDataGrid<SelectedSpell>? _spellGrid;
+    private Classes _mainSpellList;
+    private MudSelect<Classes>? _spellListToLoadSelect;
+    private MudSelect<Classes>? _spellListSelect;
+
 
     protected override async void OnInitialized()
     {
-        var spells = await LocalStorage.GetItemAsync<List<Spell>>("spells");
+        var spells = await LocalStorage.GetItemAsync<List<SelectedSpell>>("spells");
         if (spells is null)
         {
             return;
@@ -118,7 +171,7 @@
         }
     }
 
-    private Task UnselectSpell(Spell? spell)
+    private Task UnselectSpell(SelectedSpell? spell)
     {
         if (spell is null)
         {
@@ -146,16 +199,13 @@
                 SnackBar.Add($"Could not find: {spellName}", Severity.Warning);
                 continue;
             }
-
-            if (!_selectedSpells.Contains(spell))
-            {
-                _selectedSpells.Add(spell);
-            }
+            
+            _selectedSpells.Add(new SelectedSpell(spell, _mainSpellList));
         }
 
         if (_spellGrid is not null)
         {
-            await _spellGrid.SetSortAsync(nameof(Spell.Magus), SortDirection.Ascending, x => x.Magus, new MudBlazor.Utilities.NaturalComparer());
+            await _spellGrid.SetSortAsync(nameof(SelectedSpell.CurrentSpellGrade), SortDirection.Ascending, x => x.CurrentSpellGrade, new MudBlazor.Utilities.NaturalComparer());
         }
     }
 
@@ -175,10 +225,16 @@
     {
         if (spell is not null)
         {
-            _selectedSpells.Add(spell);
+            _selectedSpells.Add(new SelectedSpell(spell, _mainSpellList));
         }
         
         return Task.CompletedTask;
+    }
+
+
+    private Task OnMainSelectionChanged(IEnumerable<Classes> arg)
+    {
+        return _spellListToLoadSelect?.SelectOption(arg.First()) ?? Task.CompletedTask;
     }
 }
 

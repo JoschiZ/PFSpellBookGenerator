@@ -34,22 +34,22 @@
 
 
 @code {
-    private Dictionary<int, List<Spell>> _spellByGrade = new();
+    private Dictionary<int, List<SelectedSpell>> _spellByGrade = new();
     
     protected override async Task OnInitializedAsync()
     {
-        var spellData = await LocalStorage.GetItemAsync<List<Spell>>("spells");
+        var spellData = await LocalStorage.GetItemAsync<List<SelectedSpell>>("spells");
         if (spellData is null)
         {
             return;
         }
 
         _spellByGrade = spellData
-            .OrderBy(spell => int.Parse(spell.Magus))
-            .ThenBy(spell => spell.Name)
-            .GroupBy(keySelector: spell => spell.Magus)
+            .OrderBy(spell => spell.CurrentSpellGrade)
+            .ThenBy(spell => spell.Spell.Name)
+            .GroupBy(keySelector: spell => spell.CurrentSpellGrade)
             .ToDictionary(
-                spells => int.Parse(spells.Key), 
+                spells => spells.Key,
                 spells => spells.ToList());
     }
 
