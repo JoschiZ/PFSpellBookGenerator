@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "SpellBookGenerator",
   "resources": {
-    "hash": "sha256-53yWzpGXuCrUKjSfhM+zvgZ5jXWm0Qet9WbaSqylnyo=",
+    "hash": "sha256-bbX2KeUr6haVEAP/omEGXp6R7XLH6vll4ak13CYMfwI=",
     "jsModuleNative": {
       "dotnet.native.8.0.2.jgt5nhn140.js": "sha256-gPMK16QWoJSTxorlZJqcVtbBRTniIQWlLsJN2O4cJHg="
     },
@@ -20,7 +20,7 @@
       "Blazored.LocalStorage.wasm": "sha256-OaMAAd5n7ORfyur5e3QIyEVKJ76MKIvwbg7/icnnYcU=",
       "FuzzySharp.wasm": "sha256-TIen2oHWnNk1fnQ+lYSzxw/vFAaDRanR8IySMtoZYpk=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-HmzLzLW/wNN6dzLwpIQO++L72TzDel867f4sbij3BIU=",
-      "Microsoft.AspNetCore.Components.wasm": "sha256-SApHaUTMRwybbfHa9CdKsM1YtoRuLCv3h95UOzZ9ZnE=",
+      "Microsoft.AspNetCore.Components.wasm": "sha256-n8vvvlGZZcXSm+X8CCQCjjWEMkuywHXW46zAp0iElQ4=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-SALfDUlHduSWeS+r1s0Zq+WjMmyvv1cHUquHA0Ne6qg=",
       "Microsoft.AspNetCore.Components.WebAssembly.wasm": "sha256-vOYUxJenhpqw4oK5b61FP/mlyRZu3zgVemvtISW29fs=",
       "Microsoft.Extensions.Configuration.Abstractions.wasm": "sha256-87sn2TYqgdZ95sXmavjKEzoEfMgHnYQ9LOvnMX+aZcI=",
@@ -37,8 +37,8 @@
       "Microsoft.JSInterop.wasm": "sha256-u16l+DSyWDc2C3UzJzAaErt5W62V7BwwKMTl+5C6atk=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-2qBJkLnOCr4py2S0peps0cFo0z3Ew9OVwGYodtvAVkk=",
       "MudBlazor.wasm": "sha256-D9ZLcax8oOPMaZmPVmoQS2d0Kgsj1O+n2VRowwLGNrc=",
-      "Shared.wasm": "sha256-JNMlQqY8dLS+pX/H0mrZoInkxzhI543HVO8U1ByptQo=",
-      "SpellBookGenerator.wasm": "sha256-IKPcTll1VWcT066XVIS2CDhYdR3q4CtkTl/LhJ9OXxw=",
+      "Shared.wasm": "sha256-WJxPJqb7lIJIfeEc7moN9obmzfxbhYq3ATyetuSMpOM=",
+      "SpellBookGenerator.wasm": "sha256-/QFIRGmLvufR9jtUnCTMc0Cm57fi4Djng9wQ//QrYls=",
       "System.Collections.Concurrent.wasm": "sha256-dpXN3ZEEZE+3rCxt1BT36MkfKoLfLC6V7a75WWC6Ygs=",
       "System.Collections.wasm": "sha256-Oy2HmdFbWaGIJvICYZocbn3CtyyA84xJ3ZpFbgi6+Ao=",
       "System.ComponentModel.Annotations.wasm": "sha256-q/rDyE85w2i6MngCY9GSwnVyjMYEe0/ZcnYleWzJEH4=",
