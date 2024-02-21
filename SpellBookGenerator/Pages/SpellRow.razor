@@ -1,0 +1,26 @@
+﻿@using Shared
+
+<tr>
+    <td>        </td>
+    <th scope="row">@Spell.Name</th>
+    <td>@Spell.School <EmptyHelper Content="@Spell.SubSchool">(@Spell.SubSchool)</EmptyHelper> <EmptyHelper Content="@Spell.Descriptor">[@Spell.Descriptor]</EmptyHelper></td>
+    <td>@Spell.Range <EmptyHelper Content="@Spell.Targets">(@Spell.Targets)</EmptyHelper></td>
+    <td>@Spell.CastingTime</td>
+    <td>@Spell.Duration</td>
+    <td>@Spell.SavingThrow <EmptyHelper Content="@Spell.SpellResistance"><br/>(SR: @Spell.SpellResistance)</EmptyHelper></td>
+    <td>@Spell.Components</td>
+    <td>@((MarkupString) Spell.ShortDescription)</td>
+</tr>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public required Spell Spell { get; set; }
+}
+
+<style>
+    tr, th, td {
+        border-top: 1px solid rgb(160 160 160);
+    }
+</style>

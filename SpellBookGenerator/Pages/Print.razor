@@ -1,0 +1,66 @@
+﻿@page "/print"
+@using Shared
+@layout EmptyLayout
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IJSRuntime Js
+@inject NavigationManager NavManager
+
+@foreach (var (grade, spells) in _spellByGrade)
+{
+    <table>
+        <caption style="caption-side: top; font-weight: bold; font-size: large">@grade</caption>
+        <thead>
+        <tr>
+            <th scope="col">Notes</th>
+            <th scope="col">Name</th>
+            <th scope="col">School</th>
+            <th scope="col">Range</th>
+            <th scope="col">Casting Time</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Save</th>
+            <th scope="col">Components</th>
+            <th scope="col">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var spell in spells)
+        {
+            <SpellRow Spell="spell"/>
+        }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private Dictionary<int, List<Spell>> _spellByGrade = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var spellData = await LocalStorage.GetItemAsync<List<Spell>>("spells");
+        if (spellData is null)
+        {
+            return;
+        }
+
+        _spellByGrade = spellData
+            .OrderBy(spell => int.Parse(spell.Magus))
+            .ThenBy(spell => spell.Name)
+            .GroupBy(keySelector: spell => spell.Magus)
+            .ToDictionary(
+                spells => int.Parse(spells.Key), 
+                spells => spells.ToList());
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            // Hacky Way to open the print dialog with this pages content an without actually navigating to it.
+            await Js.InvokeVoidAsync("print");
+            NavManager.NavigateTo("/");
+        }
+    }
+
+}
