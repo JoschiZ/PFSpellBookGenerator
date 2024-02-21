@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 # Run workflow on every push to the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
       
       # publishes Blazor project to the release-folder
       - name: Publish .NET Core Project
-        run: dotnet publish ChummerDataViewer/ChummerDataViewer.csproj -c Release -o release --nologo
+        run: dotnet publish SpellbookGenerator/SpellbookGenerator.csproj -c Release -o release --nologo
       
       # changes the base-tag in index.html from '/' to 'PFSpellbookGenerator' to match GitHub Pages repository subdirectory
       - name: Change base-tag in index.html from / to PFSpellbookGenerator
