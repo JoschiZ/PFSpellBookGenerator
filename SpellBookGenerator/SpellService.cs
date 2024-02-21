@@ -5,30 +5,35 @@ namespace SpellBookGenerator;
 
 public class SpellService
 {
-    private HashSet<Spell> _loadedSpells = [];
+    //private HashSet<Spell> _loadedSpells = [];
     private readonly HttpClient _httpClient;
 
     public IEnumerable<Classes> DataToLoad { get; set; } = [];
     private readonly HashSet<Classes> _loadedDataSets = [];
+    private readonly Dictionary<int, Spell> _loadedSpells = []; 
 
     public SpellService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
 
-    public async Task<HashSet<Spell>> GetSpells()
+    public async Task<IEnumerable<Spell>> GetSpells()
     {
         if (_loadedDataSets.Contains(Classes.AllSpells))
         {
-            return _loadedSpells;
+            return _loadedSpells.Values.AsEnumerable();
         }
 
         if (DataToLoad.Contains(Classes.AllSpells))
         {
-            _loadedSpells = await _httpClient.GetFromJsonAsync<HashSet<Spell>>($"data/allSpells.json") ??
+            var newSpells = await _httpClient.GetFromJsonAsync<IEnumerable<Spell>>($"data/allSpells.json") ??
                             throw new FileNotFoundException($"Spell Data for allSpells not found");
-            _loadedDataSets.Add(Classes.AllSpells);
-            return _loadedSpells;
+            foreach (var newSpell in newSpells)
+            {
+                _loadedSpells.TryAdd(newSpell.Id, newSpell);
+            }
+
+            return _loadedSpells.Values.AsEnumerable();
         }
         
         foreach (var classToLoad in DataToLoad)
@@ -38,13 +43,16 @@ public class SpellService
                 continue;
             }
             
-            var spells = await _httpClient.GetFromJsonAsync<HashSet<Spell>>($"data/{classToLoad.ToString()}.json") ??
+            var newSpells = await _httpClient.GetFromJsonAsync<IEnumerable<Spell>>($"data/{classToLoad.ToString()}.json") ??
                          throw new FileNotFoundException($"Spell Data for {classToLoad} not found");
-            _loadedSpells.UnionWith(spells);
+            foreach (var newSpell in newSpells)
+            {
+                _loadedSpells.TryAdd(newSpell.Id, newSpell);
+            }
             
             _loadedDataSets.Add(classToLoad);
         }
 
-        return _loadedSpells;
+        return _loadedSpells.Values.AsEnumerable();
     }
 }

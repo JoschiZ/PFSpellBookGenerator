@@ -17,6 +17,7 @@ public sealed class SpellMap: ClassMap<Spell>
         Map(s => s.Area).Name("area");
         Map(s => s.Targets).Name("targets");
         Map(s => s.Duration).Name("duration");
+        Map(s => s.Id).Name("id");
         
         Map(s => s.SpellGrades.Sorcerer).Name("sor").TypeConverterOption.NullValues("NULL");
         Map(s => s.SpellGrades.Wizard).Name("wiz").TypeConverterOption.NullValues("NULL");
