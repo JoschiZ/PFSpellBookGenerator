@@ -1,6 +1,6 @@
 ﻿namespace Shared;
 
-public enum Classes
+public enum CharacterClass
 {
     AllSpells,
     Sorcerer,

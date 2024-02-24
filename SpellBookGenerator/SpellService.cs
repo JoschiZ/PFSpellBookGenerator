@@ -8,8 +8,8 @@ public class SpellService
     //private HashSet<Spell> _loadedSpells = [];
     private readonly HttpClient _httpClient;
 
-    public IEnumerable<Classes> DataToLoad { get; set; } = [];
-    private readonly HashSet<Classes> _loadedDataSets = [];
+    public IEnumerable<CharacterClass> DataToLoad { get; set; } = [];
+    private readonly HashSet<CharacterClass> _loadedDataSets = [];
     private readonly Dictionary<int, Spell> _loadedSpells = []; 
 
     public SpellService(HttpClient httpClient)
@@ -19,12 +19,12 @@ public class SpellService
 
     public async Task<IEnumerable<Spell>> GetSpells()
     {
-        if (_loadedDataSets.Contains(Classes.AllSpells))
+        if (_loadedDataSets.Contains(CharacterClass.AllSpells))
         {
             return _loadedSpells.Values.AsEnumerable();
         }
 
-        if (DataToLoad.Contains(Classes.AllSpells))
+        if (DataToLoad.Contains(CharacterClass.AllSpells))
         {
             var newSpells = await _httpClient.GetFromJsonAsync<IEnumerable<Spell>>($"data/allSpells.json") ??
                             throw new FileNotFoundException($"Spell Data for allSpells not found");

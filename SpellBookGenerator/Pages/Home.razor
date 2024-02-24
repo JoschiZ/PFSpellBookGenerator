@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.Collections.ObjectModel
+@using System.Text.RegularExpressions
 @using FuzzySharp
 @using Shared
 @inject SpellService SpellService
@@ -18,15 +19,15 @@
             You can change all details on every spell in the preview table down below.
         </MudText>
         <MudStack Row>
-            <MudSelect @ref="@_spellListSelect" Variant="Variant.Filled" OnClose="() => _spellListSelect?.ForceUpdate() ?? Task.CompletedTask"  HelperText="Select a Class" T="@Classes" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
-                @foreach (var classList in Enum.GetValues<Classes>())
+            <MudSelect @ref="@_spellListSelect" Variant="Variant.Filled" OnClose="() => _spellListSelect?.ForceUpdate() ?? Task.CompletedTask"  HelperText="Select a Class" T="@CharacterClass" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
+                @foreach (var classList in Enum.GetValues<CharacterClass>())
                 {
-                    <MudSelectItem T="Classes" Value="classList"></MudSelectItem>
+                    <MudSelectItem T="CharacterClass" Value="classList"></MudSelectItem>
                 }
             </MudSelect>
 
             <MudSelect Variant="Variant.Filled" HelperText="Spell data to load" @ref="_spellListToLoadSelect" MultiSelection @bind-SelectedValues="@SpellService.DataToLoad" Style="margin-right: 2rem">
-                @foreach (var classList in Enum.GetValues<Classes>().OrderBy(classes => classes.ToString()))
+                @foreach (var classList in Enum.GetValues<CharacterClass>().OrderBy(classes => classes.ToString()))
                 {
                     <MudSelectItem Value="classList"/>
                 }
@@ -62,15 +63,22 @@ Wish"
                     <MudText Typo="Typo.h3" Color="Color.Primary">Spell Search</MudText>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudAutocomplete
-                        T="Spell"
-                        SearchFunc="@SearchSpell"
-                        MinCharacters="3"
-                        ResetValueOnEmptyText
-                        CoerceText
-                        ToStringFunc="spell => spell.Name"
-                        ValueChanged="@OnSpellSelected"
-                        ShowProgressIndicator/>
+                    <MudStack Justify="Justify.SpaceBetween">
+                        <MudAutocomplete
+                            T="Spell"
+                            SearchFunc="@SearchSpell"
+                            MinCharacters="3"
+                            ResetValueOnEmptyText
+                            CoerceText
+                            ToStringFunc="spell => spell.Name"
+                            ValueChanged="@OnSpellSelected"
+                            ShowProgressIndicator/>
+                        
+                        <div>
+                            <MudText>You can also add all spells that match some custom expression</MudText>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => _spellFilterAddDialogOpen = true)">Add spells using expression</MudButton>
+                        </div>
+                    </MudStack>
                 </MudCardContent>
             </MudCard>
         </MudGrid>
@@ -143,8 +151,53 @@ Wish"
 </MudCard>
 
 
-
-
+<MudDialog @bind-IsVisible="@_spellFilterAddDialogOpen" Options="@_spellFilterAddDialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Color="Color.Primary">Filter spell add</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@_spellFilterAddModel">
+            <MudStack Row AlignItems="AlignItems.Baseline">
+                <MudNumericField @bind-Value="@_spellFilterAddModel.MinimumSpellLevel" Variant="Variant.Filled" Min="0" Max="9" HelperText="Min. Spell Level"/>
+                -
+                <MudNumericField @bind-Value="@_spellFilterAddModel.MaximumSpellLevel" Variant="Variant.Filled" Min="0" Max="9" HelperText="Max. Spell Level"/>
+            </MudStack>
+            <MudStack Row AlignItems="AlignItems.Baseline">
+                <MudTextField @bind-Value="@_spellFilterAddModel.FilterExpression" Variant="Variant.Filled" HelperText="Filter Expression"/>
+                <MudTooltip Text="This filter accepts regex expressions.">
+                    <MudIcon Icon="@Icons.Material.Filled.Help"/>
+                </MudTooltip>
+            </MudStack>
+            <MudToggleGroup @bind-Values="@_spellFilterAddModel.SearchFields" T="SearchField" SelectionMode="SelectionMode.MultiSelection" CheckMark Color="Color.Primary">
+                @foreach (var field in Enum.GetValues<SearchField>())
+                {
+                    <MudToggleItem Text="@(field.ToStringFast())" Value="field" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox"/>
+                }
+            </MudToggleGroup>
+        </MudForm>
+        @if (_filterAddFoundSpells.Any())
+        {
+            <MudPaper>
+                <MudList>
+                    @foreach (var foundSpell in _filterAddFoundSpells)
+                    {
+                        <MudListItem>@foundSpell.Spell.Name (@foundSpell.CurrentSpellGrade)</MudListItem>
+                        <MudDivider/>
+                    }
+                </MudList>
+            </MudPaper>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => _spellFilterAddDialogOpen = false)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => FilterSpells(_spellFilterAddModel))">Search Spells</MudButton>
+        
+        @if(_filterAddFoundSpells.Any())
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddFoundFilteredSpells">Add Spells</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
 
 
 @code
@@ -152,10 +205,21 @@ Wish"
     private string _massImport = "";
     private readonly ObservableCollection<SelectedSpell> _selectedSpells = [];
     private MudDataGrid<SelectedSpell>? _spellGrid;
-    private Classes _mainSpellList;
-    private MudSelect<Classes>? _spellListToLoadSelect;
-    private MudSelect<Classes>? _spellListSelect;
+    private CharacterClass _mainSpellList;
+    private MudSelect<CharacterClass>? _spellListToLoadSelect;
+    
+    
+    private MudSelect<CharacterClass>? _spellListSelect;
 
+    private DialogOptions _spellFilterAddDialogOptions = new()
+    {
+        CloseButton = true,
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.ExtraLarge
+    };
+    private bool _spellFilterAddDialogOpen = false;
+    private SpellFilterModel _spellFilterAddModel = new();
+    private List<SelectedSpell> _filterAddFoundSpells = [];
 
     protected override async void OnInitialized()
     {
@@ -233,9 +297,54 @@ Wish"
     }
 
 
-    private Task OnMainSelectionChanged(IEnumerable<Classes> arg)
+    private Task OnMainSelectionChanged(IEnumerable<CharacterClass> arg)
     {
         return _spellListToLoadSelect?.SelectOption(arg.First()) ?? Task.CompletedTask;
+    }
+
+    private async Task FilterSpells(SpellFilterModel filter)
+    {
+        var pattern = new Regex(filter.FilterExpression);
+
+        var spells = await SpellService.GetSpells();
+        var spellQuery = spells
+            .Select(s => new SelectedSpell(s, _mainSpellList))
+            .Where(selectedSpell => 
+                
+                filter.SearchFields.Select(field => 
+                    GetField(field, selectedSpell.Spell))
+                    .Any(fieldContent => pattern.IsMatch(fieldContent)
+                ))
+            .OrderBy(s => s.CurrentSpellGrade);
+
+        
+
+        _filterAddFoundSpells = spellQuery.ToList();
+    }
+
+    private string GetField(SearchField searchField, Spell spell)
+    {
+        return searchField switch
+        {
+            SearchField.Name => spell.Name,
+            SearchField.ShortDescription => spell.ShortDescription,
+            SearchField.FullDescription => spell.DescriptionFormatted,
+            SearchField.Range => spell.Range,
+            _ => throw new ArgumentOutOfRangeException(nameof(searchField), searchField, null)
+        };
+    }
+
+    private Task AddFoundFilteredSpells()
+    {
+        foreach (var foundSpell in _filterAddFoundSpells)
+        {
+            _selectedSpells.Add(foundSpell);
+        }
+        
+        _filterAddFoundSpells.Clear();
+        _spellFilterAddModel = new();
+        _spellFilterAddDialogOpen = false;
+        return Task.CompletedTask;
     }
 }
 
