@@ -1,0 +1,24 @@
+@inject LoadingService LoadingService
+
+
+<MudOverlay @bind-Visible="@LoadingService.IsVisible" DarkBackground>
+    <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudProgressCircular Indeterminate Color="Color.Info" Size="Size.Large"/>
+        <MudText Typo="Typo.h2" Color="Color.Info">@LoadingService.Message</MudText>
+    </MudStack>
+</MudOverlay>
+
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        LoadingService.Provider = this;
+    }
+
+    public Task Update()
+    {
+        return InvokeAsync(StateHasChanged);
+    }
+
+}

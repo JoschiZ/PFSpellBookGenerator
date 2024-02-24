@@ -7,9 +7,21 @@
 @inject ISnackbar SnackBar
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavManager
+@inject LoadingService LoadingService
 
+<LoadingOverlayProvider/>
 <MudText Color="Color.Primary" Typo="Typo.h2">Pathfinder Spell Book Generator</MudText>
+<MudButton OnClick="@Loading">Start Loading</MudButton>
+@code
+{
+    private async Task Loading()
+    {
+        var sleep = Task.Delay(3000);
+        await LoadingService.ShowAsync("Loading", () => sleep);
+    }
+    
 
+}
 <MudCard Style="margin-bottom: 2rem">
     <MudCardContent>
         <MudText>
@@ -66,7 +78,7 @@ Wish"
                     <MudStack Justify="Justify.SpaceBetween">
                         <MudAutocomplete
                             T="Spell"
-                            SearchFunc="@SearchSpell"
+                            SearchFuncWithCancel="@SearchSpell"
                             MinCharacters="3"
                             ResetValueOnEmptyText
                             CoerceText
@@ -280,9 +292,9 @@ Wish"
         NavManager.NavigateTo($"print?returnPath={returnUri}");
     }
 
-    private async Task<IEnumerable<Spell>> SearchSpell(string spellName)
+    private async Task<IEnumerable<Spell>> SearchSpell(string spellName, CancellationToken ctx)
     {
-        var spells = await SpellService.GetSpells();
+        var spells = await SpellService.GetSpells(ctx);
         return spells.Where(spell => Fuzz.Ratio(spellName, spell.Name) > 70).Take(5).OrderBy(spell => spell.Name);
     }
 
