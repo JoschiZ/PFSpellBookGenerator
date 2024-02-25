@@ -1,68 +1,58 @@
-﻿using System.Net.Http.Json;
+﻿using System.IO.Compression;
+using System.Net.Http.Json;
 using Shared;
 
 namespace SpellBookGenerator;
 
 public class SpellService
 {
-    //private HashSet<Spell> _loadedSpells = [];
     private readonly HttpClient _httpClient;
     private readonly LoadingService _loadingService;
 
-    public IEnumerable<CharacterClass> DataToLoad { get; set; } = [];
-    private readonly HashSet<CharacterClass> _loadedDataSets = [];
-    private readonly Dictionary<int, Spell> _loadedSpells = []; 
+    private readonly Dictionary<CharacterClass, IEnumerable<Spell>> _spellCache = [];
     
-
-    public SpellService(HttpClient httpClient, LoadingService loadingService)
+    public SpellService(LoadingService loadingService, HttpClient httpClient)
     {
-        _httpClient = httpClient;
         _loadingService = loadingService;
+        _httpClient = httpClient;
     }
 
-    public async Task<IEnumerable<Spell>> GetSpells(CancellationToken cts = default)
+    public async Task<IEnumerable<Spell>> GetSpellsAsync(IEnumerable<CharacterClass> lists, CancellationToken ctx = default)
     {
-        if (_loadedDataSets.Contains(CharacterClass.AllSpells))
-        {
-            return _loadedSpells.Values.AsEnumerable();
-        }
-
-        if (DataToLoad.Contains(CharacterClass.AllSpells))
-        {
-            var newSpellsTask = _httpClient.GetFromJsonAsync<IEnumerable<Spell>>($"data/allSpells.json", cancellationToken: cts);
-            var newSpells = await _loadingService.ShowAsync("Loading All Spells", () => newSpellsTask) ??
-                            throw new FileNotFoundException($"Spell Data for allSpells not found");
-            foreach (var newSpell in newSpells)
-            {
-                _loadedSpells.TryAdd(newSpell.Id, newSpell);
-            }
-
-            _loadedDataSets.Add(CharacterClass.AllSpells);
-            return _loadedSpells.Values.AsEnumerable();
-        }
+        List<IEnumerable<Spell>> allSpellLists = [];
+        List<Task<(CharacterClass characterClass, Task<IEnumerable<Spell>?> fetchSpells)>> fetchSpellsTasks = [];
         
-        foreach (var classToLoad in DataToLoad)
+        foreach (var characterClass in lists)
         {
-            if (_loadedDataSets.Contains(classToLoad))
+            var spells = _spellCache.GetValueOrDefault(characterClass);
+            
+            if (spells is not null)
             {
+                allSpellLists.Add(spells);
                 continue;
             }
             
-            Console.Write($"Loading {classToLoad}");
-
-            var newSpellsTask = _httpClient.GetFromJsonAsync<IEnumerable<Spell>>($"data/{classToLoad.ToString()}.json", cancellationToken: cts);
-            
-            var newSpells = await _loadingService.ShowAsync($"Loading {classToLoad}", () => newSpellsTask) ??
-                            throw new FileNotFoundException($"Spell Data for {classToLoad} not found");
-            
-            foreach (var newSpell in newSpells)
-            {
-                _loadedSpells.TryAdd(newSpell.Id, newSpell);
-            }
-            
-            _loadedDataSets.Add(classToLoad);
+            var fetchSpells = _httpClient.GetFromJsonAsync<IEnumerable<Spell>>($"data/{characterClass.ToString()}.json", cancellationToken: ctx);
+            fetchSpellsTasks.Add(Task.FromResult((characterClass, fetchSpells)));
         }
 
-        return _loadedSpells.Values.AsEnumerable();
+        var listsToLoad = fetchSpellsTasks.Count;
+        var doLoadingStep = await _loadingService.StartSteppedLoading(listsToLoad, $"Fetching spell data 0 / {listsToLoad}");
+        
+        while (fetchSpellsTasks.Count != 0)
+        {
+            var finishedTask = await Task.WhenAny(fetchSpellsTasks);
+            fetchSpellsTasks.Remove(finishedTask);
+            await doLoadingStep($"Fetching spell data {listsToLoad - fetchSpellsTasks.Count} / {listsToLoad}");
+
+            var (characterClass, spellsTask) = await finishedTask;
+            var spells = await spellsTask;
+            _spellCache.Add(characterClass, spells ?? throw new Exception($"Loading of {characterClass} failed"));
+            allSpellLists.Add(spells);
+        }
+
+        await _loadingService.FinishLoading();
+        var allSpells = allSpellLists.SelectMany(s => s).ToDictionary(s => s.Id, s=> s).Values;
+        return allSpells;
     }
 }

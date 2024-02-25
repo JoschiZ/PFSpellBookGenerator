@@ -14,4 +14,5 @@ builder.Services.AddScoped(sp => new HttpClient {BaseAddress = new Uri(builder.H
 builder.Services.AddScoped<SpellService>();
 builder.Services.AddSingleton<LoadingService>();
 
+
 await builder.Build().RunAsync();

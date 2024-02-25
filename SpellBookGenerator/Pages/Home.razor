@@ -38,7 +38,7 @@
                 }
             </MudSelect>
 
-            <MudSelect Variant="Variant.Filled" HelperText="Spell data to load" @ref="_spellListToLoadSelect" MultiSelection @bind-SelectedValues="@SpellService.DataToLoad" Style="margin-right: 2rem">
+            <MudSelect Variant="Variant.Filled" HelperText="Spell data to load" @ref="_spellListToLoadSelect" MultiSelection @bind-SelectedValues="@_selectedSpellLists" Style="margin-right: 2rem">
                 @foreach (var classList in Enum.GetValues<CharacterClass>().OrderBy(classes => classes.ToString()))
                 {
                     <MudSelectItem Value="classList"/>
@@ -50,7 +50,7 @@
 </MudCard>
 
 
-@if (SpellService.DataToLoad.Any())
+@if (_selectedSpellLists.Any())
 {
         <MudGrid Justify="Justify.SpaceEvenly" Spacing="3" Style="margin-bottom: 2rem">
             <MudCard Style="width: 40%">
@@ -229,9 +229,10 @@ Wish"
         CloseOnEscapeKey = true,
         MaxWidth = MaxWidth.ExtraLarge
     };
-    private bool _spellFilterAddDialogOpen = false;
+    private bool _spellFilterAddDialogOpen;
     private SpellFilterModel _spellFilterAddModel = new();
     private List<SelectedSpell> _filterAddFoundSpells = [];
+    private IEnumerable<CharacterClass> _selectedSpellLists = [];
 
     protected override async void OnInitialized()
     {
@@ -259,7 +260,7 @@ Wish"
 
     private async Task CheckSpells(string spellNames)
     {
-        var spells = await SpellService.GetSpells();
+        var spells = (await SpellService.GetSpellsAsync(_selectedSpellLists)).ToList();
 
         var singleSpellNames = spellNames
             .Split("\n")
@@ -294,7 +295,7 @@ Wish"
 
     private async Task<IEnumerable<Spell>> SearchSpell(string spellName, CancellationToken ctx)
     {
-        var spells = await SpellService.GetSpells(ctx);
+        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, ctx);
         return spells.Where(spell => Fuzz.Ratio(spellName, spell.Name) > 70).Take(5).OrderBy(spell => spell.Name);
     }
 
@@ -318,7 +319,7 @@ Wish"
     {
         var pattern = new Regex(filter.FilterExpression);
 
-        var spells = await SpellService.GetSpells();
+        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists);
         var spellQuery = spells
             .Select(s => new SelectedSpell(s, _mainSpellList))
             .Where(selectedSpell => 
