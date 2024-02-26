@@ -172,7 +172,7 @@ Wish"
             <MudToggleGroup @bind-Values="@_spellFilterAddModel.SearchFields" T="SearchField" SelectionMode="SelectionMode.MultiSelection" CheckMark Color="Color.Primary">
                 @foreach (var field in Enum.GetValues<SearchField>())
                 {
-                    <MudToggleItem Text="@(field.ToStringFast())" Value="field" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox"/>
+                    <MudToggleItem Text="@(field.ToStringFast())" Value="@field" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox"/>
                 }
             </MudToggleGroup>
         </MudForm>
@@ -191,8 +191,9 @@ Wish"
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => _spellFilterAddDialogOpen = false)">Cancel</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => FilterSpells(_spellFilterAddModel))">Search Spells</MudButton>
-        
+        <MudTooltip ShowOnHover="@(!_spellFilterAddModel.SearchFields.Any())" Text="Please select at least one text to search in">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => FilterSpells(_spellFilterAddModel))" Disabled="@(!_spellFilterAddModel.SearchFields.Any())">Search Spells</MudButton>
+        </MudTooltip>
         @if(_filterAddFoundSpells.Any())
         {
             <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddFoundFilteredSpells">Add Spells</MudButton>
