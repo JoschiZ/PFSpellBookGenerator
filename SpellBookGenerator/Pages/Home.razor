@@ -20,7 +20,7 @@
             You can change all details on every spell in the preview table down below.
         </MudText>
         <MudStack Row>
-            <MudSelect @ref="@_spellListSelect" Variant="Variant.Filled" OnClose="() => _spellListSelect?.ForceUpdate() ?? Task.CompletedTask"  HelperText="Select a Class" T="@CharacterClass" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
+            <MudSelect @ref="@_spellListSelect" Variant="Variant.Filled" HelperText="Select a Class" T="@CharacterClass" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
                 @foreach (var classList in Enum.GetValues<CharacterClass>())
                 {
                     <MudSelectItem T="CharacterClass" Value="classList"></MudSelectItem>
