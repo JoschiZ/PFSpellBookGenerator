@@ -9,19 +9,8 @@
 @inject NavigationManager NavManager
 @inject LoadingService LoadingService
 
-<LoadingOverlayProvider/>
 <MudText Color="Color.Primary" Typo="Typo.h2">Pathfinder Spell Book Generator</MudText>
-<MudButton OnClick="@Loading">Start Loading</MudButton>
-@code
-{
-    private async Task Loading()
-    {
-        var sleep = Task.Delay(3000);
-        await LoadingService.ShowAsync("Loading", () => sleep);
-    }
-    
 
-}
 <MudCard Style="margin-bottom: 2rem">
     <MudCardContent>
         <MudText>

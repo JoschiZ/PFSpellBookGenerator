@@ -1,4 +1,6 @@
+using System.Collections;
 using System.ComponentModel;
+using SpellBookGenerator.Layout;
 using SpellBookGenerator.Pages;
 
 namespace SpellBookGenerator;
@@ -12,6 +14,7 @@ public class LoadingService
     public bool SteppedLoading { get; set; }
     public double CurrentSteppedValue { get; set; }
     public double MaxSteps { get; set; }
+    public List<string> MessageQue { get; } = [];
 
     private Task UpdateUi()
     {
@@ -23,7 +26,7 @@ public class LoadingService
         return Provider.Update();
     }
 
-    public async Task<Func<string, Task>> StartSteppedLoading(int overallSteps, string initialMessage)
+    public async Task<Func<string, string?, Task>> StartSteppedLoading(int overallSteps, string initialMessage)
     {
         SteppedLoading = true;
         CurrentSteppedValue = 0;
@@ -31,8 +34,12 @@ public class LoadingService
         MaxSteps = overallSteps;
         Message = initialMessage;
         await UpdateUi();
-        return async (string message) =>
+        return async (string message, string? pushMessage) =>
         {
+            if (pushMessage is not null)
+            {
+                MessageQue.Add(pushMessage);
+            }
             Message = message;
             CurrentSteppedValue += 1;
             await UpdateUi();
@@ -41,6 +48,11 @@ public class LoadingService
 
     public async Task FinishLoading()
     {
+        Message = "Done";
+        await UpdateUi();
+        await Task.Delay(200);
+        
+        
         IsVisible = false;
         SteppedLoading = false;
         CurrentSteppedValue = 0;
