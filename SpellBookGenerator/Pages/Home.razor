@@ -311,6 +311,7 @@ Wish"
         var spells = await SpellService.GetSpellsAsync(_selectedSpellLists);
         var spellQuery = spells
             .Select(s => new SelectedSpell(s, _mainSpellList))
+            .Where(spell => spell.CurrentSpellGrade >= filter.MinimumSpellLevel && spell.CurrentSpellGrade <= filter.MaximumSpellLevel)
             .Where(selectedSpell => 
                 
                 filter.SearchFields.Select(field => 
