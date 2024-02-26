@@ -1,24 +1,24 @@
 @inject LoadingService LoadingService
 
 
-<MudOverlay Style="width: 100vw; height: 100vh" ZIndex="20000" @bind-Visible="@LoadingService.IsVisible" DarkBackground>
+<MudOverlay ZIndex="20000" @bind-Visible="@LoadingService.IsVisible" DarkBackground>
     <MudPaper MinHeight="40%" MinWidth="40%" Style="background:  rgba(39,39,47,0.8); padding: 10px">
         <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
             @if (LoadingService.SteppedLoading)
             {
-                <MudProgressLinear Color="Color.Primary" Size="Size.Large" Max="@LoadingService.MaxSteps" Rounded Value="@LoadingService.CurrentSteppedValue"/>
+                <MudProgressLinear Striped Color="Color.Primary" Size="Size.Large" Max="@LoadingService.MaxSteps" Rounded Value="@LoadingService.CurrentSteppedValue"/>
             }
             else
             {
                 <MudProgressCircular Indeterminate Color="Color.Info" Size="Size.Large"/>
             }
             <MudText Style="font-weight: bolder" Typo="Typo.h2" Color="Color.Info">@LoadingService.Message</MudText>
-            <MudStack Reverse>
-                @foreach (var message in LoadingService.MessageQue)
-                {
-                    <MudText Typo="Typo.subtitle1" Color="Color.Info">@message</MudText>
-                }
-            </MudStack>
+        </MudStack>
+        <MudStack Reverse>
+            @foreach (var message in LoadingService.MessageQue.Skip(Math.Max(0, LoadingService.MessageQue.Count - 5)))
+            {
+            <MudText Typo="Typo.subtitle1" Color="Color.Info">@message</MudText>
+            }
         </MudStack>
     </MudPaper>
 </MudOverlay>
