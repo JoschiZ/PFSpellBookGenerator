@@ -1,0 +1,9 @@
+﻿<MudLink Href="@(BaseLink+SpellName)" Target="_blank">@SpellName</MudLink>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string SpellName { get; set; }
+
+    private const string BaseLink = "https://aonprd.com/SpellDisplay.aspx?ItemName=";
+
+}

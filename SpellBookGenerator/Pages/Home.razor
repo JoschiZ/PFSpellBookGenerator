@@ -88,47 +88,49 @@ Wish"
 <MudCard>
     <MudCardContent>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GoToPrint">Print</MudButton>
-        <MudDataGrid ReadOnly="false" EditMode="DataGridEditMode.Form" @ref="@_spellGrid" Groupable GroupExpanded="false" Filterable Items="_selectedSpells">
+        <MudDataGrid 
+            ReadOnly="false" 
+            EditMode="DataGridEditMode.Form" 
+            @ref="@_spellGrid" 
+            Groupable 
+            GroupExpanded="false"
+            
+            Items="_selectedSpells"
+            
+            Filterable
+            FilterCaseSensitivity="DataGridFilterCaseSensitivity.Ignore"
+            FilterMode="DataGridFilterMode.Simple"
+            >
             <Columns>
                 <HierarchyColumn/>
-                <PropertyColumn Title="Grade" IsEditable Property="arg => arg.CurrentSpellGrade" Grouping GroupBy="spell => spell.CurrentSpellGrade">
+                <PropertyColumn Title="Level" IsEditable Property="arg => arg.CurrentSpellGrade" Grouping GroupBy="spell => spell.CurrentSpellGrade">
+                    <FilterTemplate>
+                        <MudTextField T="string" ValueChanged="@((string value) => OnFilterChanged(value, nameof(Spell.Name)))"/>
+                        <MudButton OnClick="@(() => ApplyFilterAsync(context))">Filter</MudButton>
+                    </FilterTemplate>
                     <GroupTemplate>
-                        <span style="font-weight: bold">Grade: @context.Grouping.Key <MudChip Color="Color.Info" Variant="Variant.Outlined">total: @context.Grouping.Count()</MudChip></span>
+                        <span style="font-weight: bold">Level: @context.Grouping.Key <MudChip Color="Color.Info" Variant="Variant.Outlined">total: @context.Grouping.Count()</MudChip></span>
                     </GroupTemplate>
                 </PropertyColumn>
-                <PropertyColumn Property="spell => spell.Spell.Name"/>
-                
-                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.School"/>
-                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.SubSchool"/>
-                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.Descriptor"/>
-                <TemplateColumn Title="School">
+
+                <TemplateColumn Filterable="false" ShowColumnOptions="false" ShowFilterIcon="false" Title="Name" Sortable="true" SortBy="spell => spell.Spell.Name">
                     <CellTemplate>
-                        @context.Item?.Spell.School <EmptyHelper Content="@context.Item?.Spell.SubSchool">(@context.Item?.Spell.SubSchool)</EmptyHelper> <EmptyHelper Content="@context.Item?.Spell.Descriptor">[@context.Item?.Spell.Descriptor]</EmptyHelper>
+                        <SpellLink SpellName="@context.Item.Spell.Name"/>
                     </CellTemplate>
                 </TemplateColumn>
                 
-                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.Range"/>
-                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.Targets"/>
-                <TemplateColumn Title="Range/Targets">
-                    <CellTemplate>
-                        @context.Item?.Spell.Range <EmptyHelper Content="@context.Item?.Spell.Targets">(@context.Item?.Spell.Targets)</EmptyHelper>
-                    </CellTemplate>
-                </TemplateColumn>
+                <PropertyColumn Title="School" Property="arg => arg.SchoolDisplay"/>
                 
-                <PropertyColumn Property="arg => arg.Spell.CastingTime"/>
+                <PropertyColumn Title="Range/Targets" Property="arg => arg.RangeDisplay"/>
+                
+                <PropertyColumn Property="arg => arg.Spell.CastingTime" Title="Casting Time"/>
                 <PropertyColumn Required="false" Property="spell => spell.Spell.Duration"/>
 
-                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.SpellResistance"/>
-                <PropertyColumn Hidden Required="false" Property="arg => arg.Spell.SavingThrow"/>
-                <TemplateColumn  Sortable="false" Title="Save/SR">
-                    <CellTemplate>
-                        @context.Item?.Spell.SavingThrow <EmptyHelper Content="@context.Item?.Spell.SpellResistance">(SR: @context.Item?.Spell.SpellResistance)</EmptyHelper>
-                    </CellTemplate>
-                </TemplateColumn>
+                <PropertyColumn Property="arg => arg.SpellResistDisplay" Title="Save/SR" Required="false"/>
                 
                 
                 <PropertyColumn Required="false" Property="arg => arg.Spell.Components"/>
-                <PropertyColumn Property="arg => arg.Spell.ShortDescription"/>
+                <PropertyColumn Property="arg => arg.Spell.ShortDescription" Title="Description"/>
                 <TemplateColumn Filterable="false" Sortable="false" ShowColumnOptions="false" ShowFilterIcon="false">
                     <CellTemplate>
                         <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => UnselectSpell(context.Item)">Remove</MudButton>
@@ -150,6 +152,49 @@ Wish"
         <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
     </MudCardActions>
 </MudCard>
+
+@code
+{
+    private Dictionary<string, HashSet<SelectedSpell>> _filteredSpells = [];
+
+    private FilterDefinition<SelectedSpell>? _filterDefinition;
+
+    private Task OnFilterChanged(string value, string propertyName)
+    {
+        var propertyInfo = typeof(Spell).GetProperty(propertyName);
+
+        if (propertyInfo is null)
+        {
+            return Task.CompletedTask;
+        }
+        
+        foreach (var selectedSpell in _selectedSpells)
+        {
+            var propertyValue = propertyInfo.GetValue(selectedSpell.Spell) as string;
+            if (propertyValue is null)
+            {
+                continue; 
+            }
+
+            if (!propertyValue.Contains(value) && Fuzz.PartialRatio(value, propertyValue) <= 90) continue;
+
+            if (!_filteredSpells.TryAdd(propertyName, [selectedSpell]))
+            {
+                _filteredSpells[propertyName].Add(selectedSpell);    
+            }
+        }
+        return Task.CompletedTask;
+    }
+
+    private async Task ApplyFilterAsync(FilterContext<SelectedSpell> context)
+    {
+        if (_filterDefinition is null)
+        {
+            return;
+        }
+        await context.Actions.ApplyFilterAsync(_filterDefinition);
+    }
+}
 
 
 <MudDialog @bind-IsVisible="@_spellFilterAddDialogOpen" Options="@_spellFilterAddDialogOptions">
@@ -226,6 +271,11 @@ Wish"
 
     protected override async void OnInitialized()
     {
+        _filterDefinition = new FilterDefinition<SelectedSpell>
+        {
+            FilterFunction = x => _filteredSpells.Values.Any(set => set.Contains(x))
+        };
+        
         var spells = await LocalStorage.GetItemAsync<List<SelectedSpell>>("spells");
         if (spells is null)
         {

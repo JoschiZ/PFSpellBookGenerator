@@ -17,7 +17,7 @@
         <MudStack Reverse>
             @foreach (var message in LoadingService.MessageQue.Skip(Math.Max(0, LoadingService.MessageQue.Count - 5)))
             {
-            <MudText Typo="Typo.subtitle1" Color="Color.Info">@message</MudText>
+                <MudText Typo="Typo.subtitle1" Color="Color.Info">@message</MudText>
             }
         </MudStack>
     </MudPaper>
