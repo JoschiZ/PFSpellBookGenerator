@@ -227,7 +227,8 @@ Wish"
 
     private Task OnMainSelectionChanged(IEnumerable<CharacterClass> arg)
     {
-        return _spellListToLoadSelect?.SelectOption(arg.First()) ?? Task.CompletedTask;
+        _selectedSpellLists = arg;
+        return Task.CompletedTask;
     }
 
     private async Task FilterSpells(SpellFilterModel filter)
