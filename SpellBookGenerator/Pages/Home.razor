@@ -123,13 +123,7 @@ Wish"
         @if (_filterAddFoundSpells.Any())
         {
             <MudPaper>
-                <MudList>
-                    @foreach (var foundSpell in _filterAddFoundSpells)
-                    {
-                        <MudListItem>@foundSpell.Spell.Name (@foundSpell.CurrentSpellLevel)</MudListItem>
-                        <MudDivider/>
-                    }
-                </MudList>
+                <SpellGrid Spells="_filterAddFoundSpells"></SpellGrid>
             </MudPaper>
         }
     </DialogContent>
@@ -161,7 +155,7 @@ Wish"
     };
     private bool _spellFilterAddDialogOpen;
     private SpellFilterModel _spellFilterAddModel = new();
-    private List<SelectedSpell> _filterAddFoundSpells = [];
+    private ObservableCollection<SelectedSpell> _filterAddFoundSpells = [];
     private IEnumerable<CharacterClass> _selectedSpellLists = [];
     private SpellGrid? _spellGrid;
 
@@ -254,7 +248,7 @@ Wish"
 
         
 
-        _filterAddFoundSpells = spellQuery.ToList();
+        _filterAddFoundSpells = new ObservableCollection<SelectedSpell>(spellQuery.ToList());
     }
 
     private static string GetField(SearchField searchField, Spell spell)
