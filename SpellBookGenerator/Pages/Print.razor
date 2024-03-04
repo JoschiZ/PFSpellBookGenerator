@@ -47,9 +47,9 @@
         }
 
         _spellByGrade = spellData
-            .OrderBy(spell => spell.CurrentSpellGrade)
+            .OrderBy(spell => spell.CurrentSpellLevel)
             .ThenBy(spell => spell.Spell.Name)
-            .GroupBy(keySelector: spell => spell.CurrentSpellGrade)
+            .GroupBy(keySelector: spell => spell.CurrentSpellLevel)
             .ToDictionary(
                 spells => spells.Key,
                 spells => spells.ToList());

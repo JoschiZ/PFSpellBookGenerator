@@ -10,7 +10,7 @@ public class SelectedSpell
     {
         MainCharacterClass = mainCharacterClass;
         Spell = spell;
-        CurrentSpellGrade = Spell.SpellGrades.GetGradeForClass(mainCharacterClass) ?? Spell.SpellGrades.GetLowestSpellGrade();
+        CurrentSpellLevel = Spell.SpellGrades.GetGradeForClass(mainCharacterClass) ?? Spell.SpellGrades.GetLowestSpellGrade();
         SchoolDisplay = GetSchoolDisplay(spell);
         RangeDisplay = GetRangeDisplay(spell);
         SpellResistDisplay = GetSpellResistDisplay(spell);
@@ -18,7 +18,7 @@ public class SelectedSpell
     
     public CharacterClass MainCharacterClass { get; set; }
     public Spell Spell { get; set; }
-    public int CurrentSpellGrade { get; set; }
+    public int CurrentSpellLevel { get; set; }
     
     public string SchoolDisplay { get; set; }
 
