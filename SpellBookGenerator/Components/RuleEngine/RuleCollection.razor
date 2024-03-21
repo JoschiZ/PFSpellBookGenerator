@@ -1,0 +1,88 @@
+﻿@using SpellBookGenerator.Core.RuleEngine
+
+
+<MudPaper Outlined Elevation="2" Class="rule-collection">
+    <MudStack Style="margin-bottom: 0.5rem" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Row>
+        @if (RuleBuilder is AnyRulesCollectionBuilder<SelectedSpell>)
+        {
+            <MudText>Any Of</MudText>
+        }
+        @if (RuleBuilder is AllRulesCollectionBuilder<SelectedSpell>)
+        {
+            <MudText>All Of</MudText>
+        }
+        
+        <MudButtonGroup OverrideStyles="false">
+            @ChildContent
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddAllOfRule">+ all</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddAnyOfRule">+ any</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddTextRule">+ text rule</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddNumberRule">+ number rule</MudButton>
+        </MudButtonGroup>
+    </MudStack>
+
+    @foreach (var childBuilder in RuleBuilder.Rules)
+    {
+        switch (childBuilder)
+        {
+            case RulesCollectionBuilderBase<SelectedSpell> childCollection:
+                <RuleCollection RuleBuilder="childCollection">
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(childCollection.RuleId)">Remove</MudButton>
+                </RuleCollection>
+                break;
+            case StringRuleBuilder<SelectedSpell> stringRule:
+                <StringRule RuleBuilder="stringRule">
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(stringRule.RuleId)">Remove</MudButton>
+                </StringRule>
+                break;
+            case NumericRuleBuilder<SelectedSpell, int> intRule:
+                <IntRule RuleBuilder="intRule">
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(intRule.RuleId)">Remove</MudButton>
+                </IntRule>
+                break;
+        }
+    }
+
+</MudPaper>
+
+
+<style>
+    .rule-collection{
+        padding: 0.5rem;
+        margin: 0.5rem;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public required RulesCollectionBuilderBase<SelectedSpell> RuleBuilder { get; set; }
+    
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private void RemoveChildRule(Guid ruleId)
+    {
+        RuleBuilder.RemoveRule(ruleId);
+    }
+
+    private void AddAllOfRule()
+    {
+        RuleBuilder.All();
+    }
+
+    private void AddAnyOfRule()
+    {
+        RuleBuilder.Any();
+    }
+
+    private void AddTextRule()
+    {
+        RuleBuilder.Add(spell => spell.Spell.Area);
+    }
+
+    private void AddNumberRule()
+    {
+        RuleBuilder.Add(spell => spell.CurrentSpellLevel);
+    }
+
+}

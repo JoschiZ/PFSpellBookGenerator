@@ -2,14 +2,16 @@ namespace SpellBookGenerator.Core.RuleEngine;
 
 public class RuleBuilder<TObject, TProperty>: IRuleBuilder<TObject>, IHasBuilderMethods<RuleBuilder<TObject, TProperty>, TObject>
 {
-    private protected readonly Func<TObject, TProperty> Selector;
+    private protected Func<TObject, TProperty> Selector;
     private protected Func<TObject, bool> Rule;
     private protected bool BaseCase = true;
+    public Guid RuleId { get; } = new Guid();
 
-    protected RuleBuilder(Func<TObject, TProperty> selector)
+    protected RuleBuilder(Func<TObject, TProperty> selector, Guid ruleId)
     {
         Selector = selector;
         Rule = (o => BaseCase);
+        RuleId = ruleId;
     }
 
     public RuleBuilder<TObject, TProperty> Custom(Func<TObject, bool> func)
@@ -31,6 +33,12 @@ public class RuleBuilder<TObject, TProperty>: IRuleBuilder<TObject>, IHasBuilder
     public virtual RuleBuilder<TObject, TProperty> Not()
     {
         BaseCase = !BaseCase;
+        return this;
+    }
+
+    public virtual RuleBuilder<TObject, TProperty> RuleFor(Func<TObject, TProperty> newSelector)
+    {
+        Selector = newSelector;
         return this;
     }
 }

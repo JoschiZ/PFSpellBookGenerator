@@ -1,0 +1,121 @@
+﻿@using SpellBookGenerator.Core
+@using SpellBookGenerator.Core.RuleEngine
+
+<MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center">
+    <MudSelect
+        DisableUnderLine
+        Dense
+        Margin="Margin.Dense"
+        Variant="Variant.Filled"
+        T="@(QueryableStringSpellProperties)"
+        Style="min-width: 9rem"
+        SelectedValuesChanged="@OnSelectionChanged">
+            @foreach (var prop in Enum.GetValues<QueryableStringSpellProperties>().OrderBy(prop => prop.ToStringFast()))
+            {
+                <MudSelectItem T="@(QueryableStringSpellProperties)" Value="prop">
+                    <MudText Align="Align.Center">@prop.ToStringFast()</MudText>
+                </MudSelectItem>
+            }
+    </MudSelect>
+    <MudSelect 
+        T="bool"
+        ValueChanged="@(() => RuleBuilder.Not())"
+        DisableUnderLine
+        Dense
+        Margin="Margin.Dense" 
+        Variant="Variant.Filled">
+        <MudSelectItem T="bool" Value="@false">
+            <MudText Align="Align.Center">
+                SHOULD
+            </MudText>
+        </MudSelectItem>
+        <MudSelectItem T="bool" Value="@true">
+            <MudText Align="Align.Center">
+                SHOULD NOT
+            </MudText>
+        </MudSelectItem>
+    </MudSelect>
+    <MudSelect
+        DisableUnderLine
+        Dense
+        Margin="Margin.Dense"
+        Variant="Variant.Filled"
+        T="@(Func<string, StringRuleBuilder<SelectedSpell>>)"
+        ValueChanged="@ComparisonMethodChanged">
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<SelectedSpell>>)" Value="@RuleBuilder.Contain">
+            <MudText Align="Align.Center">CONTAIN</MudText>
+        </MudSelectItem>
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<SelectedSpell>>)" Value="@RuleBuilder.Equal">
+            <MudText Align="Align.Center">EQUAL</MudText>
+        </MudSelectItem>
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<SelectedSpell>>)" Value="@RuleBuilder.Match">
+            <MudText Align="Align.Center">   
+                <MudTooltip Text="This uses regular expressions">
+                    MATCH
+                </MudTooltip>
+            </MudText>
+        </MudSelectItem>
+    </MudSelect>
+    <MudTextField Margin="Margin.Dense" T="string" Variant="Variant.Filled" DisableUnderLine ValueChanged="@ComparisonValueChanged"/>
+    @ChildContent
+</MudStack>
+
+
+@code {
+    private string _comparisonValue = "";
+    private Func<string, StringRuleBuilder<SelectedSpell>>? _comparisonMethod;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter, EditorRequired] 
+    public required StringRuleBuilder<SelectedSpell> RuleBuilder { get; set; }
+    
+
+    private Task UpdateBuilder()
+    {
+        _comparisonMethod?.Invoke(_comparisonValue);
+        return Task.CompletedTask;
+    }
+
+    private void ComparisonMethodChanged(Func<string, StringRuleBuilder<SelectedSpell>> newMethod)
+    {
+        _comparisonMethod = newMethod;
+        UpdateBuilder();
+    }
+
+    private void ComparisonValueChanged(string newValue)
+    {
+        _comparisonValue = newValue;
+        UpdateBuilder();
+    }
+    
+    private void OnSelectionChanged(IEnumerable<QueryableStringSpellProperties> queryableSpellPropertiesEnumerable)
+    {
+        var property = queryableSpellPropertiesEnumerable.First();
+
+        Func<SelectedSpell, string> selector = property switch
+        {
+            QueryableStringSpellProperties.Area => (selectedSpell) => selectedSpell.Spell.Area,
+            QueryableStringSpellProperties.Components => (selectedSpell) => selectedSpell.Spell.Components,
+            QueryableStringSpellProperties.Descriptor => (selectedSpell) => selectedSpell.Spell.Descriptor,
+            QueryableStringSpellProperties.Duration => (selectedSpell) => selectedSpell.Spell.Duration,
+            QueryableStringSpellProperties.Name => (selectedSpell) => selectedSpell.Spell.Name,
+            QueryableStringSpellProperties.Range => (selectedSpell) => selectedSpell.Spell.Range,
+            QueryableStringSpellProperties.School => (selectedSpell) => selectedSpell.Spell.School,
+            QueryableStringSpellProperties.Source => (selectedSpell) => selectedSpell.Spell.Source,
+            QueryableStringSpellProperties.Targets => (selectedSpell) => selectedSpell.Spell.Targets,
+            QueryableStringSpellProperties.CastingTime => (selectedSpell) => selectedSpell.Spell.CastingTime,
+            QueryableStringSpellProperties.Description => (selectedSpell) => selectedSpell.Spell.DescriptionFormatted,
+            QueryableStringSpellProperties.SavingThrow => (selectedSpell) => selectedSpell.Spell.SavingThrow,
+            QueryableStringSpellProperties.ShortDescription => (selectedSpell) => selectedSpell.Spell.ShortDescription,
+            QueryableStringSpellProperties.SpellResistance => (selectedSpell) => selectedSpell.Spell.SpellResistance,
+            QueryableStringSpellProperties.SubSchool => (selectedSpell) => selectedSpell.Spell.SubSchool,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        RuleBuilder.RuleFor(selector);
+        UpdateBuilder();
+    }
+
+}

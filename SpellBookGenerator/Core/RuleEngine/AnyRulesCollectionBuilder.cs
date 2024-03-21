@@ -1,6 +1,6 @@
 namespace SpellBookGenerator.Core.RuleEngine;
 
-public class AnyRulesCollectionBuilder<TObject> : RulesCollectionBuilderBase<TObject>
+public class AnyRulesCollectionBuilder<TObject>(Guid ruleId) : RulesCollectionBuilderBase<TObject>(ruleId)
 {
     public override Func<TObject, bool> Build()
     {

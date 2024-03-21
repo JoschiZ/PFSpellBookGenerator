@@ -9,7 +9,7 @@ public class NumericRuleBuilderTests
     [Fact]
     public void ShouldBeBigger()
     {
-        var rb = new NumericRuleBuilder<Person, int>(p => p.Age);
+        var rb = new NumericRuleBuilder<Person, int>(p => p.Age, Guid.NewGuid());
         rb.Should().BeBigger(18);
         var rule = rb.Build();
 
@@ -23,7 +23,7 @@ public class NumericRuleBuilderTests
     [Fact]
     public void ShouldBeSmaller()
     {
-        var rb = new NumericRuleBuilder<Person, int>(p => p.Age);
+        var rb = new NumericRuleBuilder<Person, int>(p => p.Age, Guid.NewGuid());
         rb.Should().BeSmaller(18);
         var rule = rb.Build();
 
@@ -38,7 +38,7 @@ public class NumericRuleBuilderTests
     [Fact]
     public void Between()
     {
-        var rb = new NumericRuleBuilder<Person, int>(p => p.Age);
+        var rb = new NumericRuleBuilder<Person, int>(p => p.Age, Guid.NewGuid());
         rb.Should().BeBetween(14, 18);
         var rule = rb.Build();
 
@@ -52,7 +52,7 @@ public class NumericRuleBuilderTests
     [Fact]
     public void ShouldNotBetween()
     {
-        var rb = new NumericRuleBuilder<Person, int>(p => p.Age);
+        var rb = new NumericRuleBuilder<Person, int>(p => p.Age, Guid.NewGuid());
         rb.Should().Not().BeBetween(14, 18);
         var rule = rb.Build();
 

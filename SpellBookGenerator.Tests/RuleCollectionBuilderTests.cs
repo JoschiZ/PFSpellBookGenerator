@@ -5,7 +5,7 @@ namespace SpellBookGenerator.Tests;
 
 public class RuleCollectionBuilderTests
 {
-    private record Person(string Name, string LastName, int Age = 18);
+    private record Person(string? Name, string? LastName, int Age = 18);
     
     
     [Fact]

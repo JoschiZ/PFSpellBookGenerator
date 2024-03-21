@@ -3,8 +3,8 @@ using System.Numerics;
 namespace SpellBookGenerator.Core.RuleEngine;
 
 
-public class NumericRuleBuilder<TObject, TProperty>(Func<TObject, TProperty> selector)
-    : RuleBuilder<TObject, TProperty>(selector)
+public class NumericRuleBuilder<TObject, TProperty>(Func<TObject, TProperty> selector, Guid ruleId)
+    : RuleBuilder<TObject, TProperty>(selector, ruleId)
     where TProperty : INumber<TProperty>
 {
     public override NumericRuleBuilder<TObject, TProperty> Not()
@@ -15,6 +15,17 @@ public class NumericRuleBuilder<TObject, TProperty>(Func<TObject, TProperty> sel
 
     public override NumericRuleBuilder<TObject, TProperty> Should()
     {
+        return this;
+    }
+    
+    public NumericRuleBuilder<TObject, TProperty> BeSmallerOrEqual(TProperty lowerBound)
+    {
+        Rule = o => BaseCase == Selector(o) <= lowerBound;
+        return this;
+    }
+    public NumericRuleBuilder<TObject, TProperty> BeBiggerOrEqual(TProperty lowerBound)
+    {
+        Rule = o => BaseCase == Selector(o) >= lowerBound;
         return this;
     }
     

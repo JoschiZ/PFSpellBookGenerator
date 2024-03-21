@@ -2,6 +2,7 @@
 @using System.Collections.ObjectModel
 @using System.Text.RegularExpressions
 @using FuzzySharp
+@using SpellBookGenerator.Core.RuleEngine
 @using Shared
 @inject SpellService SpellService
 @inject ISnackbar SnackBar
@@ -101,25 +102,7 @@ Wish"
         <MudText Typo="Typo.h6" Color="Color.Primary">Filter spell add</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@_spellFilterAddModel">
-            <MudStack Row AlignItems="AlignItems.Baseline">
-                <MudNumericField @bind-Value="@_spellFilterAddModel.MinimumSpellLevel" Variant="Variant.Filled" Min="0" Max="9" HelperText="Min. Spell Level"/>
-                -
-                <MudNumericField @bind-Value="@_spellFilterAddModel.MaximumSpellLevel" Variant="Variant.Filled" Min="0" Max="9" HelperText="Max. Spell Level"/>
-            </MudStack>
-            <MudStack Row AlignItems="AlignItems.Baseline">
-                <MudTextField @bind-Value="@_spellFilterAddModel.FilterExpression" Variant="Variant.Filled" HelperText="Filter Expression"/>
-                <MudTooltip Text="This filter accepts regex expressions.">
-                    <MudIcon Icon="@Icons.Material.Filled.Help"/>
-                </MudTooltip>
-            </MudStack>
-            <MudToggleGroup @bind-Values="@_spellFilterAddModel.SearchFields" T="SearchField" SelectionMode="SelectionMode.MultiSelection" CheckMark Color="Color.Primary">
-                @foreach (var field in Enum.GetValues<SearchField>())
-                {
-                    <MudToggleItem Text="@(field.ToStringFast())" Value="@field" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox"/>
-                }
-            </MudToggleGroup>
-        </MudForm>
+        <RuleCollection RuleBuilder="_ruleBuilder"/>
         @if (_filterAddFoundSpells.Any())
         {
             <MudPaper>
@@ -129,9 +112,7 @@ Wish"
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => _spellFilterAddDialogOpen = false)">Cancel</MudButton>
-        <MudTooltip ShowOnHover="@(!_spellFilterAddModel.SearchFields.Any())" Text="Please select at least one text to search in">
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => FilterSpells(_spellFilterAddModel))" Disabled="@(!_spellFilterAddModel.SearchFields.Any())">Search Spells</MudButton>
-        </MudTooltip>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => FilterSpells(_ruleBuilder))">Search Spells</MudButton>
         @if(_filterAddFoundSpells.Any())
         {
             <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddFoundFilteredSpells">Add Spells</MudButton>
@@ -146,6 +127,7 @@ Wish"
     private readonly ObservableCollection<SelectedSpell> _selectedSpells = [];
     private CharacterClass _mainSpellList;
     private MudSelect<CharacterClass>? _spellListToLoadSelect;
+    private AllRulesCollectionBuilder<SelectedSpell> _ruleBuilder = new(Guid.NewGuid());
 
     private DialogOptions _spellFilterAddDialogOptions = new()
     {
@@ -154,7 +136,6 @@ Wish"
         MaxWidth = MaxWidth.ExtraLarge
     };
     private bool _spellFilterAddDialogOpen;
-    private SpellFilterModel _spellFilterAddModel = new();
     private ObservableCollection<SelectedSpell> _filterAddFoundSpells = [];
     private IEnumerable<CharacterClass> _selectedSpellLists = [];
     private SpellGrid? _spellGrid;
@@ -223,45 +204,22 @@ Wish"
         
         return Task.CompletedTask;
     }
-
-
+    
     private Task OnMainSelectionChanged(IEnumerable<CharacterClass> arg)
     {
         _selectedSpellLists = arg;
         return Task.CompletedTask;
     }
 
-    private async Task FilterSpells(SpellFilterModel filter)
+    private async Task FilterSpells(IRuleBuilder<SelectedSpell> ruleBuilder)
     {
-        var pattern = new Regex(filter.FilterExpression);
+        var rule = ruleBuilder.Build();
 
         var spells = await SpellService.GetSpellsAsync(_selectedSpellLists);
-        var spellQuery = spells
-            .Select(s => new SelectedSpell(s, _mainSpellList))
-            .Where(spell => spell.CurrentSpellLevel >= filter.MinimumSpellLevel && spell.CurrentSpellLevel <= filter.MaximumSpellLevel)
-            .Where(selectedSpell => 
-                
-                filter.SearchFields.Select(field => 
-                    GetField(field, selectedSpell.Spell))
-                    .Any(fieldContent => pattern.IsMatch(fieldContent)
-                ))
-            .OrderBy(s => s.CurrentSpellLevel);
-
+        var selectedSpells = spells.Select(spell => new SelectedSpell(spell, _mainSpellList));
+        var spellQuery = selectedSpells.Where(s => rule(s));
         
-
         _filterAddFoundSpells = new ObservableCollection<SelectedSpell>(spellQuery.ToList());
-    }
-
-    private static string GetField(SearchField searchField, Spell spell)
-    {
-        return searchField switch
-        {
-            SearchField.Name => spell.Name,
-            SearchField.ShortDescription => spell.ShortDescription,
-            SearchField.FullDescription => spell.DescriptionFormatted,
-            SearchField.Range => spell.Range,
-            _ => throw new ArgumentOutOfRangeException(nameof(searchField), searchField, null)
-        };
     }
 
     private Task AddFoundFilteredSpells()
@@ -272,7 +230,7 @@ Wish"
         }
         
         _filterAddFoundSpells.Clear();
-        _spellFilterAddModel = new SpellFilterModel();
+        _ruleBuilder = new AllRulesCollectionBuilder<SelectedSpell>(Guid.NewGuid());
         _spellFilterAddDialogOpen = false;
         return Task.CompletedTask;
     }
