@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using System.Collections.ObjectModel
-@using System.Text.RegularExpressions
 @using FuzzySharp
 @using SpellBookGenerator.Core.RuleEngine
 @using Shared
@@ -8,6 +7,7 @@
 @inject ISnackbar SnackBar
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavManager
+@inject IJsApiService JSService
 
 
 <MudText Color="Color.Primary" Typo="Typo.h2">Pathfinder Spell Book Generator</MudText>
@@ -88,11 +88,14 @@ Wish"
 
 <MudCard>
     <MudCardContent>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GoToPrint">Print</MudButton>
         <SpellGrid @ref="@_spellGrid" Spells="_selectedSpells"/>
     </MudCardContent>
     <MudCardActions>
-        <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
+        <MudButtonGroup OverrideStyles="false">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ExportNames">Export</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GoToPrint">Print</MudButton>
+            <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
+        </MudButtonGroup>
     </MudCardActions>
 </MudCard>
 
@@ -233,6 +236,14 @@ Wish"
         _ruleBuilder = new AllRulesCollectionBuilder<SelectedSpell>(Guid.NewGuid());
         _spellFilterAddDialogOpen = false;
         return Task.CompletedTask;
+    }
+
+    private async Task ExportNames()
+    {
+        var names = _selectedSpells.Select(s => s.Spell.Name);
+        var exportString = string.Join("\n", names);
+        await JSService.CopyToClipboardAsync(exportString);
+        SnackBar.Add("Names Copied!", Severity.Success);
     }
 }
 
