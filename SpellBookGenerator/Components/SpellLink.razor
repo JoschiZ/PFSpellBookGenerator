@@ -1,9 +1,10 @@
-﻿<MudLink Href="@(BaseLink+SpellName)" Target="_blank">@SpellName</MudLink>
+﻿@using SpellBookGenerator.Core.Spells
+@typeparam TSpell where TSpell: Shared.SpellBase
+
+<MudLink Href="@SpellDisplay.ArchivesOfNethysUrl" Target="_blank">@SpellDisplay.Spell.Name</MudLink>
 
 @code {
     [Parameter, EditorRequired]
-    public required string SpellName { get; set; }
-
-    private const string BaseLink = "https://aonprd.com/SpellDisplay.aspx?ItemName=";
+    public required SpellDisplay<TSpell> SpellDisplay { get; set; }
 
 }

@@ -15,10 +15,12 @@ public sealed class Pathfinder1SpellDisplay: SpellDisplay<Pathfinder1Spell>
         SchoolDisplay = GetSchoolDisplay(spell);
         RangeDisplay = GetRangeDisplay(spell);
         SpellResistDisplay = GetSpellResistDisplay(spell);
+        ArchivesOfNethysUrl = $"https://aonprd.com/SpellDisplay.aspx?ItemName={spell.Name}";
     }
 
     public string SpellResistDisplay { get; set; }
     public override string RangeDisplay { get; set; }
+    public override string ArchivesOfNethysUrl { get; init; }
 
     public override int GetCurrentSpellLevel(Pathfinder1Spell spell)
     {

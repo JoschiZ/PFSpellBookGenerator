@@ -32,7 +32,7 @@
 
         <TemplateColumn Filterable="false" ShowColumnOptions="false" ShowFilterIcon="false" Title="Name" Sortable="true" SortBy="spell => spell.Spell.Name">
             <CellTemplate>
-                <SpellLink SpellName="@context.Item.Spell.Name"/>
+                <SpellLink SpellDisplay="@context.Item"/>
             </CellTemplate>
         </TemplateColumn>
         

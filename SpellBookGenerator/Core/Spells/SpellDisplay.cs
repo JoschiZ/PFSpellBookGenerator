@@ -15,8 +15,8 @@ public abstract class SpellDisplay<TSpell> where TSpell: SpellBase
     public CharacterClass MainCharacterClass { get; set; }
     public TSpell Spell { get; set; }
     public int CurrentSpellLevel { get; set; }
-    
     public abstract string RangeDisplay { get; set; }
+    public abstract string ArchivesOfNethysUrl { get; init; }
 
     
     public abstract int GetCurrentSpellLevel(TSpell spell);
