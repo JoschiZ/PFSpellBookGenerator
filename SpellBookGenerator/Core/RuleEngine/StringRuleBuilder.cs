@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace SpellBookGenerator.Core.RuleEngine;
 
-public class StringRuleBuilder<TObject>(Func<TObject, string?> selector, Guid ruleId) : RuleBuilder<TObject, string>(selector, ruleId)
+public class StringRuleBuilder<TObject>(Func<TObject, string> selector, Guid ruleId) : RuleBuilder<TObject, string>(selector, ruleId)
 {
     public override StringRuleBuilder<TObject> Not()
     {
@@ -38,7 +38,7 @@ public class StringRuleBuilder<TObject>(Func<TObject, string?> selector, Guid ru
             var regex = new Regex(pattern, regexOptions);
             Rule = o => BaseCase == regex.IsMatch(Selector(o));
         }
-        catch (RegexParseException e)
+        catch (RegexParseException)
         {
         }
         

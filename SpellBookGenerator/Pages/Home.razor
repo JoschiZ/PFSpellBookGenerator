@@ -7,8 +7,8 @@
 @inject SpellService SpellService
 @inject ISnackbar SnackBar
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-@inject NavigationManager NavManager
-@inject IJsApiService JSService
+@inject NavigationManager NavigationManager
+@inject IJsApiService JsService
 @inject SourceService SourceService
 
 
@@ -30,7 +30,7 @@
                 }
             </MudSelect>
 
-            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Spell lists" @ref="_spellListToLoadSelect" MultiSelection @bind-SelectedValues="@_selectedSpellLists" Style="margin-right: 2rem">
+            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Spell lists" MultiSelection @bind-SelectedValues="@_selectedSpellLists" Style="margin-right: 2rem">
                 @foreach (var classList in Enum.GetValues<CharacterClass>().OrderBy(classes => classes.ToString()))
                 {
                     <MudSelectItem Value="classList"/>
@@ -140,7 +140,6 @@ Wish"
     private string _massImport = "";
     private readonly ObservableCollection<SelectedSpell> _selectedSpells = [];
     private CharacterClass _mainSpellList;
-    private MudSelect<CharacterClass>? _spellListToLoadSelect;
     private AllRulesCollectionBuilder<SelectedSpell> _ruleBuilder = new(Guid.NewGuid());
 
     private DialogOptions _spellFilterAddDialogOptions = new()
@@ -203,8 +202,8 @@ Wish"
     private async Task GoToPrint()
     {
         await LocalStorage.SetItemAsync("spells", _selectedSpells);
-        var returnUri = NavManager.ToBaseRelativePath(NavManager.Uri);
-        NavManager.NavigateTo($"print?returnPath={returnUri}");
+        var returnUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.NavigateTo($"print?returnPath={returnUri}");
     }
 
     private async Task<IEnumerable<Spell>> SearchSpell(string spellName, CancellationToken ctx)
@@ -257,7 +256,7 @@ Wish"
     {
         var names = _selectedSpells.Select(s => s.Spell.Name);
         var exportString = string.Join("\n", names);
-        await JSService.CopyToClipboardAsync(exportString);
+        await JsService.CopyToClipboardAsync(exportString);
         SnackBar.Add("Names Copied!", Severity.Success);
     }
 }
