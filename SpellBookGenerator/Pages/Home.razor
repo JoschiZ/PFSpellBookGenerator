@@ -2,12 +2,14 @@
 @using System.Collections.ObjectModel
 @using FuzzySharp
 @using SpellBookGenerator.Core.RuleEngine
+@using SpellBookGenerator.Core.Sources
 @using Shared
 @inject SpellService SpellService
 @inject ISnackbar SnackBar
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavManager
 @inject IJsApiService JSService
+@inject SourceService SourceService
 
 
 <MudText Color="Color.Primary" Typo="Typo.h2">Pathfinder Spell Book Generator</MudText>
@@ -21,17 +23,26 @@
             You can change all details on every spell in the preview table down below.
         </MudText>
         <MudStack Row>
-            <MudSelect Variant="Variant.Filled" HelperText="Select a Class" T="@CharacterClass" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
+            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Your class" T="@CharacterClass" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
                 @foreach (var classList in Enum.GetValues<CharacterClass>())
                 {
                     <MudSelectItem T="CharacterClass" Value="classList"></MudSelectItem>
                 }
             </MudSelect>
 
-            <MudSelect Variant="Variant.Filled" HelperText="Spell data to load" @ref="_spellListToLoadSelect" MultiSelection @bind-SelectedValues="@_selectedSpellLists" Style="margin-right: 2rem">
+            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Spell lists" @ref="_spellListToLoadSelect" MultiSelection @bind-SelectedValues="@_selectedSpellLists" Style="margin-right: 2rem">
                 @foreach (var classList in Enum.GetValues<CharacterClass>().OrderBy(classes => classes.ToString()))
                 {
                     <MudSelectItem Value="classList"/>
+                }
+            </MudSelect>
+            
+            <MudSelect T="SourceFile" ToStringFunc="file => file.Name" Variant="Variant.Filled" Dense Margin="Margin.Dense" MultiSelection HelperText="Source Books" @bind-SelectedValues="@_selectedSources">
+                @foreach (var sourceFile in _sourceFiles)
+                {
+                    <MudSelectItem T="SourceFile" Value="sourceFile">
+                        <MudText>@sourceFile.Name</MudText>
+                    </MudSelectItem>
                 }
             </MudSelect>
         </MudStack>
@@ -142,14 +153,18 @@ Wish"
     private ObservableCollection<SelectedSpell> _filterAddFoundSpells = [];
     private IEnumerable<CharacterClass> _selectedSpellLists = [];
     private SpellGrid? _spellGrid;
+    private IEnumerable<SourceFile> _sourceFiles = [];
+    private IEnumerable<SourceFile> _selectedSources = [];
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         var spells = await LocalStorage.GetItemAsync<List<SelectedSpell>>("spells");
         if (spells is null)
         {
             return;
         }
+
+        _sourceFiles = await SourceService.GetSourceFilesAsync();
         
         foreach (var spell in spells)
         {
@@ -159,7 +174,7 @@ Wish"
 
     private async Task AddSpellsByName(string spellNames)
     {
-        var spells = (await SpellService.GetSpellsAsync(_selectedSpellLists)).ToList();
+        var spells = (await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources)).ToList();
 
         var singleSpellNames = spellNames
             .Split("\n")
@@ -194,7 +209,7 @@ Wish"
 
     private async Task<IEnumerable<Spell>> SearchSpell(string spellName, CancellationToken ctx)
     {
-        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, ctx);
+        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources, ctx);
         return spells.Where(spell => Fuzz.Ratio(spellName, spell.Name) > 70).Take(5).OrderBy(spell => spell.Name);
     }
 
@@ -218,7 +233,7 @@ Wish"
     {
         var rule = ruleBuilder.Build();
 
-        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists);
+        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources);
         var selectedSpells = spells.Select(spell => new SelectedSpell(spell, _mainSpellList));
         var spellQuery = selectedSpells.Where(s => rule(s));
         

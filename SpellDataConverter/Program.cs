@@ -1,5 +1,6 @@
 ﻿// Utility to convert the D20 spell data to a json file for better perf later on
 
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
@@ -28,8 +29,13 @@ foreach (var classList in classLists)
     sw.Write(json);
 }
 
-using var allSpellsFs = File.OpenWrite($@"{projectDirectory}\output\allSpells.json");
+using var allSpellsFs = File.OpenWrite($@"{projectDirectory}\output\AllSpells.json");
 using var allSpellsSw = new StreamWriter(allSpellsFs);
 var allSpellsJson = JsonSerializer.Serialize(records);
 allSpellsSw.Write(allSpellsJson);
 
+var sources = records.Select(spell => spell.Source).ToHashSet().Select(s => new SourceFile(s, s, 0)).OrderBy(s => s.SortPriority).ThenBy(s => s.Name).ToImmutableArray();
+using var sourceFile = File.OpenWrite($"{projectDirectory}/output/sources.json");
+using var sourceWriter = new StreamWriter(sourceFile);
+var sourceJson = JsonSerializer.Serialize(sources, new JsonSerializerOptions(){WriteIndented = true});
+sourceWriter.Write(sourceJson);

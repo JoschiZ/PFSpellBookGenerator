@@ -39,6 +39,7 @@
       <None Include="wwwroot\data\Shaman.json" />
       <None Include="wwwroot\data\Skald.json" />
       <None Include="wwwroot\data\Sorcerer.json" />
+      <None Include="wwwroot\data\sources.json" />
       <None Include="wwwroot\data\Spiritualist.json" />
       <None Include="wwwroot\data\Summoner.json" />
       <None Include="wwwroot\data\Witch.json" />
