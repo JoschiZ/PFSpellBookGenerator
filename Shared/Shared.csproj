@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta08" />
+    </ItemGroup>
+
 </Project>

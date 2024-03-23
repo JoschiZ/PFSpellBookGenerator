@@ -1,6 +1,6 @@
 ﻿@using SpellBookGenerator.Core.Spells
 @using Shared
-@typeparam TSpell where TSpell: Shared.SpellBase
+@typeparam TSpell where TSpell: Shared.ISpell
 
 @if (typeof(TSpell) == typeof(Pathfinder1Spell) && Pathfinder1 is not null)
 {

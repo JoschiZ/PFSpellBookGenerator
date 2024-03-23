@@ -21,7 +21,7 @@ internal sealed class SourceService
             return _sourceFilesCache;
         }
 
-        var sources = await _httpClient.GetFromJsonAsync<IEnumerable<SourceFile>>("data/sources.json");
+        var sources = await _httpClient.GetFromJsonAsync<IEnumerable<SourceFile>>("data/pathfinder1/sources.json");
         _sourceFilesCache = sources?.OrderByDescending(s => s.SortPriority).ThenBy(s => s.Name);
         return _sourceFilesCache ?? throw new Exception("Source Files Missing");
     }

@@ -26,15 +26,15 @@
             You can change all details on every spell in the preview table down below.
         </MudText>
         <MudStack Row>
-            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Your class" T="@CharacterClass" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
-                @foreach (var classList in Enum.GetValues<CharacterClass>())
+            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Your class" T="@CharacterClass.Pathfinder1" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
+                @foreach (var classList in Enum.GetValues<CharacterClass.Pathfinder1>())
                 {
-                    <MudSelectItem T="CharacterClass" Value="classList"></MudSelectItem>
+                    <MudSelectItem T="CharacterClass.Pathfinder1" Value="classList"></MudSelectItem>
                 }
             </MudSelect>
 
             <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Spell lists" MultiSelection @bind-SelectedValues="@_selectedSpellLists" Style="margin-right: 2rem">
-                @foreach (var classList in Enum.GetValues<CharacterClass>().OrderBy(classes => classes.ToString()))
+                @foreach (var classList in Enum.GetValues<CharacterClass.Pathfinder1>().OrderBy(classes => classes.ToString()))
                 {
                     <MudSelectItem Value="classList"/>
                 }
@@ -141,7 +141,7 @@ Wish"
 {
     private string _massImport = "";
     private readonly ObservableCollection<SpellDisplay<Pathfinder1Spell>> _selectedSpells = [];
-    private CharacterClass _mainSpellList;
+    private CharacterClass.Pathfinder1 _mainSpellList;
     private AllRulesCollectionBuilder<SpellDisplay<Pathfinder1Spell>> _ruleBuilder = new(Guid.NewGuid());
 
     private DialogOptions _spellFilterAddDialogOptions = new()
@@ -153,7 +153,7 @@ Wish"
 
     private bool _spellFilterAddDialogOpen;
     private ObservableCollection<SpellDisplay<Pathfinder1Spell>> _filterAddFoundSpells = [];
-    private IEnumerable<CharacterClass> _selectedSpellLists = [];
+    private IEnumerable<CharacterClass.Pathfinder1> _selectedSpellLists = [];
     private SpellGrid<Pathfinder1Spell, Pathfinder1SpellDisplay>? _spellGrid;
     private IEnumerable<SourceFile> _sourceFiles = [];
     private IEnumerable<SourceFile> _selectedSources = [];
@@ -229,7 +229,7 @@ Wish"
         return Task.CompletedTask;
     }
 
-    private Task OnMainSelectionChanged(IEnumerable<CharacterClass> arg)
+    private Task OnMainSelectionChanged(IEnumerable<CharacterClass.Pathfinder1> arg)
     {
         _selectedSpellLists = arg;
         return Task.CompletedTask;

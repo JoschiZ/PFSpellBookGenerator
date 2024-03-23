@@ -4,13 +4,13 @@ using Shared;
 
 namespace SpellBookGenerator.Core.Spells;
 
-public class SpellService<TSpell> where TSpell: SpellBase
+public class SpellService<TSpell> where TSpell: ISpell
 {
     private readonly HttpClient _httpClient;
     private readonly LoadingService _loadingService;
 
-    private readonly Dictionary<CharacterClass, IEnumerable<TSpell>> _spellCache = [];
-    private (HashSet<CharacterClass>, IEnumerable<TSpell>)? _mergedSpellListCache;
+    private readonly Dictionary<CharacterClass.Pathfinder1, IEnumerable<TSpell>> _spellCache = [];
+    private (HashSet<CharacterClass.Pathfinder1>, IEnumerable<TSpell>)? _mergedSpellListCache;
     
     public SpellService(LoadingService loadingService, HttpClient httpClient)
     {
@@ -18,15 +18,15 @@ public class SpellService<TSpell> where TSpell: SpellBase
         _httpClient = httpClient;
     }
 
-    public async Task<IEnumerable<TSpell>> GetSpellsAsync(IEnumerable<CharacterClass> lists, IEnumerable<SourceFile> sourceFiles, CancellationToken ctx = default)
+    public async Task<IEnumerable<TSpell>> GetSpellsAsync(IEnumerable<CharacterClass.Pathfinder1> lists, IEnumerable<SourceFile> sourceFiles, CancellationToken ctx = default)
     {
         var classesToLoad = lists.ToImmutableArray();
         var sourceBooksToLoad = sourceFiles.Select(s => s.InternalName).ToImmutableHashSet();
 
         // Only load the complete data set, if all data is requested
-        if (classesToLoad.Contains(CharacterClass.AllSpells))
+        if (classesToLoad.Contains(CharacterClass.Pathfinder1.AllSpells))
         {
-            classesToLoad = [CharacterClass.AllSpells];
+            classesToLoad = [CharacterClass.Pathfinder1.AllSpells];
         }
         
         // See if the last request requested the same data and directly return the cache
@@ -40,7 +40,7 @@ public class SpellService<TSpell> where TSpell: SpellBase
         }
         
         List<IEnumerable<TSpell>> allSpellLists = [];
-        List<Task<(CharacterClass characterClass, Task<IEnumerable<TSpell>?> fetchSpells)>> fetchSpellsTasks = [];
+        List<Task<(CharacterClass.Pathfinder1 characterClass, Task<IEnumerable<TSpell>?> fetchSpells)>> fetchSpellsTasks = [];
         
         foreach (var characterClass in classesToLoad)
         {
@@ -52,7 +52,7 @@ public class SpellService<TSpell> where TSpell: SpellBase
                 continue;
             }
             
-            var fetchSpells = _httpClient.GetFromJsonAsync<IEnumerable<TSpell>>($"data/{characterClass.ToString()}.json", cancellationToken: ctx);
+            var fetchSpells = _httpClient.GetFromJsonAsync<IEnumerable<TSpell>>($"data/pathfinder1/{characterClass.ToString()}.json", cancellationToken: ctx);
             fetchSpellsTasks.Add(Task.FromResult((characterClass, fetchSpells)));
         }
 

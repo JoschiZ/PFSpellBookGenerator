@@ -13,37 +13,38 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.2" PrivateAssets="all" />
         <PackageReference Include="MudBlazor" Version="6.16.0" />
         <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta08" />
+        <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="wwwroot\data\Adept.json" />
-      <None Include="wwwroot\data\Alchemist.json" />
-      <None Include="wwwroot\data\allSpells.json" />
-      <None Include="wwwroot\data\AntiPaladin.json" />
-      <None Include="wwwroot\data\Bard.json" />
-      <None Include="wwwroot\data\BloodRager.json" />
-      <None Include="wwwroot\data\Cleric.json" />
-      <None Include="wwwroot\data\Druid.json" />
-      <None Include="wwwroot\data\Hunter.json" />
-      <None Include="wwwroot\data\Inquisitor.json" />
-      <None Include="wwwroot\data\Investigator.json" />
       <None Include="wwwroot\data\magus.json" />
       <None Include="wwwroot\data\Magus.json" />
-      <None Include="wwwroot\data\Medium.json" />
-      <None Include="wwwroot\data\Mesmerist.json" />
-      <None Include="wwwroot\data\Occultist.json" />
-      <None Include="wwwroot\data\Oracle.json" />
-      <None Include="wwwroot\data\Paladin.json" />
-      <None Include="wwwroot\data\Psychic.json" />
-      <None Include="wwwroot\data\Ranger.json" />
-      <None Include="wwwroot\data\Shaman.json" />
-      <None Include="wwwroot\data\Skald.json" />
-      <None Include="wwwroot\data\Sorcerer.json" />
-      <None Include="wwwroot\data\sources.json" />
-      <None Include="wwwroot\data\Spiritualist.json" />
-      <None Include="wwwroot\data\Summoner.json" />
-      <None Include="wwwroot\data\Witch.json" />
-      <None Include="wwwroot\data\Wizard.json" />
+      <None Include="wwwroot\data\pathfinder1\Adept.json" />
+      <None Include="wwwroot\data\pathfinder1\Alchemist.json" />
+      <None Include="wwwroot\data\pathfinder1\AllSpells.json" />
+      <None Include="wwwroot\data\pathfinder1\AntiPaladin.json" />
+      <None Include="wwwroot\data\pathfinder1\Bard.json" />
+      <None Include="wwwroot\data\pathfinder1\BloodRager.json" />
+      <None Include="wwwroot\data\pathfinder1\Cleric.json" />
+      <None Include="wwwroot\data\pathfinder1\Druid.json" />
+      <None Include="wwwroot\data\pathfinder1\Hunter.json" />
+      <None Include="wwwroot\data\pathfinder1\Inquisitor.json" />
+      <None Include="wwwroot\data\pathfinder1\Investigator.json" />
+      <None Include="wwwroot\data\pathfinder1\Magus.json" />
+      <None Include="wwwroot\data\pathfinder1\Medium.json" />
+      <None Include="wwwroot\data\pathfinder1\Mesmerist.json" />
+      <None Include="wwwroot\data\pathfinder1\Occultist.json" />
+      <None Include="wwwroot\data\pathfinder1\Oracle.json" />
+      <None Include="wwwroot\data\pathfinder1\Paladin.json" />
+      <None Include="wwwroot\data\pathfinder1\Psychic.json" />
+      <None Include="wwwroot\data\pathfinder1\Ranger.json" />
+      <None Include="wwwroot\data\pathfinder1\Shaman.json" />
+      <None Include="wwwroot\data\pathfinder1\Skald.json" />
+      <None Include="wwwroot\data\pathfinder1\Sorcerer.json" />
+      <None Include="wwwroot\data\pathfinder1\Spiritualist.json" />
+      <None Include="wwwroot\data\pathfinder1\Summoner.json" />
+      <None Include="wwwroot\data\pathfinder1\Witch.json" />
+      <None Include="wwwroot\data\pathfinder1\Wizard.json" />
     </ItemGroup>
 
     <ItemGroup>

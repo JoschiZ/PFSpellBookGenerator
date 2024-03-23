@@ -9,7 +9,7 @@ public sealed class Pathfinder1SpellDisplay: SpellDisplay<Pathfinder1Spell>
     
     public string SchoolDisplay { get; set; }
 
-    public Pathfinder1SpellDisplay(Pathfinder1Spell spell, CharacterClass mainCharacterClass) : base(spell, mainCharacterClass)
+    public Pathfinder1SpellDisplay(Pathfinder1Spell spell, CharacterClass.Pathfinder1 mainCharacterClass) : base(spell, mainCharacterClass)
     {
         CurrentSpellLevel = GetCurrentSpellLevel(spell);
         SchoolDisplay = GetSchoolDisplay(spell);
