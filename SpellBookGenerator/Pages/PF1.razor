@@ -1,0 +1,269 @@
+﻿@page "/PF1"
+@using System.Collections.ObjectModel
+@using FuzzySharp
+@using SpellBookGenerator.Core.RuleEngine
+@using SpellBookGenerator.Core.Sources
+@using SpellBookGenerator.Core.Spells
+@using SpellBookGenerator.Core
+@using Shared
+@inject SpellService<Pathfinder1Spell> SpellService
+@inject ISnackbar SnackBar
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@inject IJsApiService JsService
+@inject SourceService SourceService
+@inject LoadingService LoadingService
+
+
+<MudText Color="Color.Primary" Typo="Typo.h2">Pathfinder Spell Book Generator</MudText>
+
+<MudCard Style="margin-bottom: 2rem">
+    <MudCardContent>
+        <MudText>
+            To select spell you need to select a class first. This class will be used to determine the grade of your spells.
+            If you select spells that aren't on your spell list, or choose "AllSpells" as your class, the lowest available grade will be chosen.
+            Changing your selected class will only affect newly added spells!
+            You can change all details on every spell in the preview table down below.
+        </MudText>
+        <MudStack Row>
+            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Your class" T="@CharacterClass" @bind-Value="@_mainSpellList" SelectedValuesChanged="@OnMainSelectionChanged">
+                @foreach (var classList in Enum.GetValues<CharacterClass>())
+                {
+                    <MudSelectItem T="CharacterClass" Value="classList"></MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect Dense Margin="Margin.Dense" Variant="Variant.Filled" HelperText="Spell lists" MultiSelection @bind-SelectedValues="@_selectedSpellLists" Style="margin-right: 2rem">
+                @foreach (var classList in Enum.GetValues<CharacterClass>().OrderBy(classes => classes.ToString()))
+                {
+                    <MudSelectItem Value="classList"/>
+                }
+            </MudSelect>
+
+            <MudSelect T="SourceFile" ToStringFunc="file => file.Name" Variant="Variant.Filled" Dense Margin="Margin.Dense" MultiSelection HelperText="Source Books" @bind-SelectedValues="@_selectedSources">
+                @foreach (var sourceFile in _sourceFiles)
+                {
+                    <MudSelectItem T="SourceFile" Value="sourceFile">
+                        <MudText>@sourceFile.Name</MudText>
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudStack>
+
+    </MudCardContent>
+</MudCard>
+
+
+@if (_selectedSpellLists.Any())
+{
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="3" Style="margin-bottom: 2rem">
+        <MudCard Style="width: 40%">
+            <MudCardHeader>
+                <MudText Typo="Typo.h3" Color="Color.Primary">Mass Import</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTextField
+                    Placeholder=
+                    "Light
+Fireball
+Wish"
+                    AutoGrow Lines="5" MaxLines="10" Variant="Variant.Outlined" @bind-Value="@_massImport"/>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton OnClick="@(() => AddSpellsByName(_massImport))" Variant="Variant.Filled" Color="Color.Primary">Add Spells</MudButton>
+            </MudCardActions>
+        </MudCard>
+        <MudCard Style="width: 40%">
+            <MudCardHeader>
+                <MudText Typo="Typo.h3" Color="Color.Primary">Spell Search</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudStack Justify="Justify.SpaceBetween">
+                    <MudAutocomplete
+                        T="@Pathfinder1Spell"
+                        SearchFuncWithCancel="@SearchSpell"
+                        MinCharacters="3"
+                        ResetValueOnEmptyText
+                        CoerceText
+                        ToStringFunc="spell => spell.Name"
+                        ValueChanged="@OnSpellSelected"
+                        ShowProgressIndicator/>
+
+                    <div>
+                        <MudText>You can also add all spells that match some custom expression</MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => _spellFilterAddDialogOpen = true)">Add spells using expression</MudButton>
+                    </div>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+    </MudGrid>
+}
+
+<MudCard>
+    <MudCardContent>
+        <SpellGrid @ref="@_spellGrid" TDisplay="Pathfinder1SpellDisplay" TSpell="Pathfinder1Spell" Spells="_selectedSpells"/>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButtonGroup OverrideStyles="false">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ExportNames">Export</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GoToPrint">Print</MudButton>
+            <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
+        </MudButtonGroup>
+    </MudCardActions>
+</MudCard>
+
+
+<MudDialog @bind-IsVisible="@_spellFilterAddDialogOpen" Options="@_spellFilterAddDialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Color="Color.Primary">Filter spell add</MudText>
+    </TitleContent>
+    <DialogContent>
+        <RuleCollection RuleBuilder="_ruleBuilder"/>
+        @if (_filterAddFoundSpells.Any())
+        {
+            <MudPaper>
+                <SpellGrid TDisplay="Pathfinder1SpellDisplay" TSpell="Pathfinder1Spell" Spells="_filterAddFoundSpells"></SpellGrid>
+            </MudPaper>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => _spellFilterAddDialogOpen = false)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => FilterSpells(_ruleBuilder))">Search Spells</MudButton>
+        @if (_filterAddFoundSpells.Any())
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@AddFoundFilteredSpells">Add Spells</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+
+@code
+{
+    private string _massImport = "";
+    private readonly ObservableCollection<SpellDisplay<Pathfinder1Spell>> _selectedSpells = [];
+    private CharacterClass _mainSpellList;
+    private AllRulesCollectionBuilder<SpellDisplay<Pathfinder1Spell>> _ruleBuilder = new(Guid.NewGuid());
+
+    private DialogOptions _spellFilterAddDialogOptions = new()
+    {
+        CloseButton = true,
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.ExtraLarge
+    };
+
+    private bool _spellFilterAddDialogOpen;
+    private ObservableCollection<SpellDisplay<Pathfinder1Spell>> _filterAddFoundSpells = [];
+    private IEnumerable<CharacterClass> _selectedSpellLists = [];
+    private SpellGrid<Pathfinder1Spell, Pathfinder1SpellDisplay>? _spellGrid;
+    private IEnumerable<SourceFile> _sourceFiles = [];
+    private IEnumerable<SourceFile> _selectedSources = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _sourceFiles = await SourceService.GetSourceFilesAsync();
+
+        if (await LocalStorage.ContainKeyAsync("spells"))
+        {
+            var spellsTask = LocalStorage.GetItemAsync<List<Pathfinder1SpellDisplay>>("spells");
+            var spells = await LoadingService.ShowAsync("Loading Spells", () => spellsTask);
+            if (spells is null)
+            {
+                return;
+            }
+
+            foreach (var spell in spells)
+            {
+                _selectedSpells.Add(spell);
+            }
+        }
+    }
+
+    private async Task AddSpellsByName(string spellNames)
+    {
+        var spells = (await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources)).ToList();
+
+        var singleSpellNames = spellNames
+            .Split("\n")
+            .Select(s => s.Replace("\"", ""))
+            .Select(s => s.Trim());
+
+        foreach (var spellName in singleSpellNames)
+        {
+            var spell = spells.FirstOrDefault(spell => Fuzz.Ratio(spellName, spell.Name) >= 90);
+
+            if (spell is null)
+            {
+                SnackBar.Add($"Could not find: {spellName}", Severity.Warning);
+                continue;
+            }
+
+            _selectedSpells.Add(new Pathfinder1SpellDisplay(spell, _mainSpellList));
+        }
+
+        if (_spellGrid is not null)
+        {
+            await _spellGrid.SortByLevel();
+        }
+    }
+
+    private async Task GoToPrint()
+    {
+        await LocalStorage.SetItemAsync("spells", _selectedSpells);
+        var returnUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.NavigateTo($"{Routes.Pathfinder1.Print}?returnPath={returnUri}");
+    }
+
+    private async Task<IEnumerable<Pathfinder1Spell>> SearchSpell(string spellName, CancellationToken ctx)
+    {
+        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources, ctx);
+        return spells.Where(spell => Fuzz.Ratio(spellName, spell.Name) > 70).Take(5).OrderBy(spell => spell.Name);
+    }
+
+    private Task OnSpellSelected(Pathfinder1Spell? spell)
+    {
+        if (spell is not null)
+        {
+            _selectedSpells.Add(new Pathfinder1SpellDisplay(spell, _mainSpellList));
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnMainSelectionChanged(IEnumerable<CharacterClass> arg)
+    {
+        _selectedSpellLists = arg;
+        return Task.CompletedTask;
+    }
+
+    private async Task FilterSpells(IRuleBuilder<SpellDisplay<Pathfinder1Spell>> ruleBuilder)
+    {
+        var rule = ruleBuilder.Build();
+
+        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources);
+        var selectedSpells = spells.Select(spell => new Pathfinder1SpellDisplay(spell, _mainSpellList));
+        var spellQuery = selectedSpells.Where(s => rule(s));
+
+        _filterAddFoundSpells = new ObservableCollection<SpellDisplay<Pathfinder1Spell>>(spellQuery.ToList());
+    }
+
+    private Task AddFoundFilteredSpells()
+    {
+        foreach (var foundSpell in _filterAddFoundSpells)
+        {
+            _selectedSpells.Add(foundSpell);
+        }
+
+        _filterAddFoundSpells.Clear();
+        _ruleBuilder = new AllRulesCollectionBuilder<SpellDisplay<Pathfinder1Spell>>(Guid.NewGuid());
+        _spellFilterAddDialogOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private async Task ExportNames()
+    {
+        var names = _selectedSpells.Select(s => s.Spell.Name);
+        var exportString = string.Join("\n", names);
+        await JsService.CopyToClipboardAsync(exportString);
+        SnackBar.Add("Names Copied!", Severity.Success);
+    }
+}

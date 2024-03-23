@@ -72,6 +72,19 @@ public class LoadingService
         await UpdateUi();
         return result;
     }
+    
+    public async ValueTask<TReturn> ShowAsync<TReturn>(string message, Func<ValueTask<TReturn>> func)
+    {
+        Message = message;
+        IsVisible = true;
+        await UpdateUi();
+
+        var result = await func();
+
+        IsVisible = false;
+        await UpdateUi();
+        return result;
+    }
 
     public async Task ShowAsync(string message, Func<Task> func)
     {

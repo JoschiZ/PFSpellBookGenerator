@@ -1,5 +1,8 @@
-﻿@using SpellBookGenerator.Core
+﻿@using Shared
+@using SpellBookGenerator.Core
 @using SpellBookGenerator.Core.RuleEngine
+@using SpellBookGenerator.Core.Spells
+@typeparam TSpell where TSpell: Shared.SpellBase
 
 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center">
     <MudSelect
@@ -40,15 +43,15 @@
         Dense
         Margin="Margin.Dense"
         Variant="Variant.Filled"
-        T="@(Func<string, StringRuleBuilder<SelectedSpell>>)"
+        T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)"
         ValueChanged="@ComparisonMethodChanged">
-        <MudSelectItem T="@(Func<string, StringRuleBuilder<SelectedSpell>>)" Value="@RuleBuilder.Contain">
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)" Value="@RuleBuilder.Contain">
             <MudText Align="Align.Center">CONTAIN</MudText>
         </MudSelectItem>
-        <MudSelectItem T="@(Func<string, StringRuleBuilder<SelectedSpell>>)" Value="@RuleBuilder.Equal">
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)" Value="@RuleBuilder.Equal">
             <MudText Align="Align.Center">EQUAL</MudText>
         </MudSelectItem>
-        <MudSelectItem T="@(Func<string, StringRuleBuilder<SelectedSpell>>)" Value="@RuleBuilder.Match">
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)" Value="@RuleBuilder.Match">
             <MudText Align="Align.Center">   
                 <MudTooltip Text="This uses regular expressions">
                     MATCH
@@ -63,13 +66,13 @@
 
 @code {
     private string _comparisonValue = "";
-    private Func<string, StringRuleBuilder<SelectedSpell>>? _comparisonMethod;
+    private Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>? _comparisonMethod;
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter, EditorRequired] 
-    public required StringRuleBuilder<SelectedSpell> RuleBuilder { get; set; }
+    public required StringRuleBuilder<SpellDisplay<TSpell>> RuleBuilder { get; set; }
     
 
     private Task UpdateBuilder()
@@ -78,7 +81,7 @@
         return Task.CompletedTask;
     }
 
-    private void ComparisonMethodChanged(Func<string, StringRuleBuilder<SelectedSpell>> newMethod)
+    private void ComparisonMethodChanged(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>> newMethod)
     {
         _comparisonMethod = newMethod;
         UpdateBuilder();
@@ -94,27 +97,33 @@
     {
         var property = queryableSpellPropertiesEnumerable.First();
 
-        Func<SelectedSpell, string> selector = property switch
+        if (typeof(TSpell) == typeof(Pathfinder1Spell))
         {
-            QueryableStringSpellProperties.Area => (selectedSpell) => selectedSpell.Spell.Area,
-            QueryableStringSpellProperties.Components => (selectedSpell) => selectedSpell.Spell.Components,
-            QueryableStringSpellProperties.Descriptor => (selectedSpell) => selectedSpell.Spell.Descriptor,
-            QueryableStringSpellProperties.Duration => (selectedSpell) => selectedSpell.Spell.Duration,
-            QueryableStringSpellProperties.Name => (selectedSpell) => selectedSpell.Spell.Name,
-            QueryableStringSpellProperties.Range => (selectedSpell) => selectedSpell.Spell.Range,
-            QueryableStringSpellProperties.School => (selectedSpell) => selectedSpell.Spell.School,
-            QueryableStringSpellProperties.Source => (selectedSpell) => selectedSpell.Spell.Source,
-            QueryableStringSpellProperties.Targets => (selectedSpell) => selectedSpell.Spell.Targets,
-            QueryableStringSpellProperties.CastingTime => (selectedSpell) => selectedSpell.Spell.CastingTime,
-            QueryableStringSpellProperties.Description => (selectedSpell) => selectedSpell.Spell.DescriptionFormatted,
-            QueryableStringSpellProperties.SavingThrow => (selectedSpell) => selectedSpell.Spell.SavingThrow,
-            QueryableStringSpellProperties.ShortDescription => (selectedSpell) => selectedSpell.Spell.ShortDescription,
-            QueryableStringSpellProperties.SpellResistance => (selectedSpell) => selectedSpell.Spell.SpellResistance,
-            QueryableStringSpellProperties.SubSchool => (selectedSpell) => selectedSpell.Spell.SubSchool,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            Func<SpellDisplay<Pathfinder1Spell>, string> selector = property switch
+            {
+                QueryableStringSpellProperties.Area => (selectedSpell) => selectedSpell.Spell.Area,
+                QueryableStringSpellProperties.Components => (selectedSpell) => selectedSpell.Spell.Components,
+                QueryableStringSpellProperties.Descriptor => (selectedSpell) => selectedSpell.Spell.Descriptor,
+                QueryableStringSpellProperties.Duration => (selectedSpell) => selectedSpell.Spell.Duration,
+                QueryableStringSpellProperties.Name => (selectedSpell) => selectedSpell.Spell.Name,
+                QueryableStringSpellProperties.Range => (selectedSpell) => selectedSpell.Spell.Range,
+                QueryableStringSpellProperties.School => (selectedSpell) => selectedSpell.Spell.School,
+                QueryableStringSpellProperties.Source => (selectedSpell) => selectedSpell.Spell.Source,
+                QueryableStringSpellProperties.Targets => (selectedSpell) => selectedSpell.Spell.Targets,
+                QueryableStringSpellProperties.CastingTime => (selectedSpell) => selectedSpell.Spell.CastingTime,
+                QueryableStringSpellProperties.Description => (selectedSpell) => selectedSpell.Spell.DescriptionFormatted,
+                QueryableStringSpellProperties.SavingThrow => (selectedSpell) => selectedSpell.Spell.SavingThrow,
+                QueryableStringSpellProperties.ShortDescription => (selectedSpell) => selectedSpell.Spell.ShortDescription,
+                QueryableStringSpellProperties.SpellResistance => (selectedSpell) => selectedSpell.Spell.SpellResistance,
+                QueryableStringSpellProperties.SubSchool => (selectedSpell) => selectedSpell.Spell.SubSchool,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            
+            RuleBuilder.RuleFor((Func<SpellDisplay<TSpell>, string>)selector);
+        }
 
-        RuleBuilder.RuleFor(selector);
+
+
         UpdateBuilder();
     }
 

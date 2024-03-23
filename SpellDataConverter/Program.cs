@@ -12,7 +12,7 @@ using var fs = File.OpenRead("./input.csv");
 using var sr = new StreamReader(fs);
 using var csvReader = new CsvReader(sr, CultureInfo.InvariantCulture);
 csvReader.Context.RegisterClassMap<SpellMap>();
-var records = csvReader.GetRecords<Spell>().ToArray();
+var records = csvReader.GetRecords<Pathfinder1Spell>().ToArray();
 
 // This will get the current WORKING directory (i.e. \bin\Debug)
 var workingDirectory = Environment.CurrentDirectory;
@@ -20,12 +20,12 @@ var workingDirectory = Environment.CurrentDirectory;
 // This will get the current PROJECT directory
 var projectDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
 
-var classLists = typeof(SpellGrades).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+var classLists = typeof(Levels).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 foreach (var classList in classLists)
 {
     using var writeFs = File.OpenWrite($@"{projectDirectory}\output\{classList.Name}.json");
     using var sw = new StreamWriter(writeFs);
-    var json = JsonSerializer.Serialize(records.Where(spell => classList.GetValue(spell.SpellGrades) != null));
+    var json = JsonSerializer.Serialize(records.Where(spell => classList.GetValue(spell.Levels) != null));
     sw.Write(json);
 }
 

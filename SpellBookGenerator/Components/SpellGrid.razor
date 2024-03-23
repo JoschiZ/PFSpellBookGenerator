@@ -1,8 +1,11 @@
 ﻿@using System.Collections.ObjectModel
 @using FuzzySharp
+@using SpellBookGenerator.Core.Spells
 @using Shared
-@inject SpellService SpellService
 @inject ISnackbar Snackbar
+@typeparam TSpell where TSpell: SpellBase
+@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
+@inject SpellService<TSpell> SpellService
 
 <MudDataGrid 
     ReadOnly="false" 
@@ -19,7 +22,7 @@
         <HierarchyColumn/>
         <PropertyColumn Title="Level" IsEditable Property="arg => arg.CurrentSpellLevel" Grouping GroupBy="spell => spell.CurrentSpellLevel">
             <FilterTemplate>
-                <MudTextField T="string" ValueChanged="@((string value) => OnFilterChanged(value, nameof(Spell.Name)))"/>
+                <MudTextField T="string" ValueChanged="@((string value) => OnFilterChanged(value, nameof(SpellBase.Name)))"/>
                 <MudButton OnClick="@(() => ApplyFilterAsync(context))">Filter</MudButton>
             </FilterTemplate>
             <GroupTemplate>
@@ -33,16 +36,26 @@
             </CellTemplate>
         </TemplateColumn>
         
-        <PropertyColumn Title="School" Property="arg => arg.SchoolDisplay"/>
+        @if (typeof(TDisplay) == typeof(Pathfinder1SpellDisplay))
+        {
+            <PropertyColumn T="Pathfinder1SpellDisplay" TProperty="string" Title="School" Property="arg => arg.SchoolDisplay"/>
+        }
+        
         
         <PropertyColumn Title="Range/Targets" Property="arg => arg.RangeDisplay"/>
         
         <PropertyColumn Property="arg => arg.Spell.CastingTime" Title="Casting Time"/>
         <PropertyColumn Required="false" Property="spell => spell.Spell.Duration"/>
 
-        <PropertyColumn Property="arg => arg.SpellResistDisplay" Title="Save/SR" Required="false"/>
         
-        <PropertyColumn Required="false" Property="arg => arg.Spell.Components"/>
+        
+        @if (typeof(TDisplay) == typeof(Pathfinder1SpellDisplay))
+        {
+            <PropertyColumn T="Pathfinder1SpellDisplay" TProperty="string" Property="arg => arg.SpellResistDisplay" Title="Save/SR" Required="false"/>
+            <PropertyColumn T="Pathfinder1SpellDisplay" TProperty="string" Required="false" Property="@(spell => spell.Spell.Components)"/>
+        }
+
+        
         <PropertyColumn Property="arg => arg.Spell.ShortDescription" Title="Description"/>
         <TemplateColumn Filterable="false" Sortable="false" ShowColumnOptions="false" ShowFilterIcon="false">
             <CellTemplate>
@@ -64,14 +77,14 @@
 @code
 {
     [Parameter, EditorRequired]
-    public required ObservableCollection<SelectedSpell> Spells { get; set; }
-    private MudDataGrid<SelectedSpell>? _spellGrid;
-    private Dictionary<string, HashSet<SelectedSpell>> _filteredSpells = [];
-    private FilterDefinition<SelectedSpell>? _filterDefinition;
+    public required ObservableCollection<SpellDisplay<TSpell>> Spells { get; set; }
+    private MudDataGrid<SpellDisplay<TSpell>>? _spellGrid;
+    private Dictionary<string, HashSet<SpellDisplay<TSpell>>> _filteredSpells = [];
+    private FilterDefinition<SpellDisplay<TSpell>>? _filterDefinition;
 
     protected override void OnInitialized()
     {
-        _filterDefinition = new FilterDefinition<SelectedSpell>
+        _filterDefinition = new FilterDefinition<SpellDisplay<TSpell>>
         {
             FilterFunction = x => _filteredSpells.Values.Any(set => set.Contains(x))
         };
@@ -81,14 +94,14 @@
     {
         if (_spellGrid is not null)
         {
-            await _spellGrid.SetSortAsync(nameof(SelectedSpell.CurrentSpellLevel), SortDirection.Ascending, x => x.CurrentSpellLevel, new MudBlazor.Utilities.NaturalComparer());
+            await _spellGrid.SetSortAsync(nameof(SpellDisplay<TSpell>.CurrentSpellLevel), SortDirection.Ascending, x => x.CurrentSpellLevel, new MudBlazor.Utilities.NaturalComparer());
         }
     }
     
 
     private Task OnFilterChanged(string value, string propertyName)
     {
-        var propertyInfo = typeof(Spell).GetProperty(propertyName);
+        var propertyInfo = typeof(TSpell).GetProperty(propertyName);
 
         if (propertyInfo is null)
         {
@@ -112,7 +125,7 @@
         return Task.CompletedTask;
     }
     
-    private async Task ApplyFilterAsync(FilterContext<SelectedSpell> context)
+    private async Task ApplyFilterAsync(FilterContext<SpellDisplay<TSpell>> context)
     {
         if (_filterDefinition is null)
         {
@@ -121,7 +134,7 @@
         await context.Actions.ApplyFilterAsync(_filterDefinition);
     }
     
-    private Task UnselectSpell(SelectedSpell? spell)
+    private Task UnselectSpell(SpellDisplay<TSpell>? spell)
     {
         if (spell is null)
         {

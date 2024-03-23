@@ -1,31 +1,8 @@
-﻿using System.Globalization;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 
 namespace Shared;
 
-public class Spell
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = "";
-    public string School { get; set; } = "";
-    public string SubSchool { get; set; } = "";
-    public string Descriptor { get; set; } = "";
-    public string CastingTime { get; set; } = "";
-    public string Components { get; set; } = "";
-    public string Range { get; set; } = "";
-    public string Area { get; set; } = "";
-    public string Targets { get; set; } = "";
-    public string Duration { get; set; } = "";
-    public string SavingThrow { get; set; } = "";
-    public string SpellResistance { get; set; } = "";
-    public string DescriptionFormatted { get; set; } = "";
-    public SpellGrades SpellGrades { get; set; } = new();
-    public string ShortDescription { get; set; } = "";
-    public string Source { get; set; } = "";
-}
-
-public class SpellGrades
+public class Levels
 {
     public int? Sorcerer { get; set; }
     public int? Wizard { get; set; }
@@ -55,7 +32,7 @@ public class SpellGrades
 
     public int GetLowestSpellGrade()
     {
-        var grades = typeof(SpellGrades).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        var grades = typeof(Levels).GetProperties(BindingFlags.Instance | BindingFlags.Public);
         return (int)grades
             .Select(info => (int?)info.GetValue(this))
             .Where(grade => grade.HasValue)

@@ -1,0 +1,23 @@
+﻿@using SpellBookGenerator.Core.Spells
+@using Shared
+@typeparam TSpell where TSpell: Shared.SpellBase
+
+@if (typeof(TSpell) == typeof(Pathfinder1Spell) && Pathfinder1 is not null)
+{
+    @(Pathfinder1(Spell as Pathfinder1SpellDisplay ?? throw new InvalidCastException("Could Not correctly cast the Spell")))
+} else if (typeof(TSpell) == typeof(Pathfinder2Spell) && Pathfinder2 is not null)
+{
+    @(Pathfinder2(Spell as Pathfinder2SpellDisplay ?? throw new InvalidCastException("Could Not correctly cast the Spell")))
+}
+
+
+@code {
+    [Parameter]
+    public RenderFragment<Pathfinder1SpellDisplay>? Pathfinder1 { get; set; }
+    
+    [Parameter]
+    public RenderFragment<Pathfinder2SpellDisplay>? Pathfinder2 { get; set; }
+    
+    [Parameter, EditorRequired]
+    public required SpellDisplay<TSpell> Spell { get; set; }
+}

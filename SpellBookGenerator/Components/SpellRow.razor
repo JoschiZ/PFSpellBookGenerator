@@ -1,20 +1,40 @@
-﻿<tr>
+﻿@using SpellBookGenerator.Core.Spells
+@typeparam TSpell where TSpell: Shared.SpellBase
+@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
+
+<tr>
     <td>        </td>
-    <th scope="row">@Spell.Spell.Name</th>
-    <td>@Spell.SchoolDisplay</td>
-    <td>@Spell.RangeDisplay</td>
-    <td>@Spell.Spell.CastingTime</td>
-    <td>@Spell.Spell.Duration</td>
-    <td>@Spell.SpellResistDisplay</td>
-    <td>@Spell.Spell.Components</td>
-    <td>@((MarkupString) Spell.Spell.ShortDescription)</td>
+    <th scope="row">@SpellDisplay.Spell.Name</th>
+    <SpellVersionHelper Spell="SpellDisplay">
+        <Pathfinder1>
+            <td>@context.SchoolDisplay</td>
+        </Pathfinder1>
+    </SpellVersionHelper>
+    
+
+    <td>@SpellDisplay.RangeDisplay</td>
+    <td>@SpellDisplay.Spell.CastingTime</td>
+    <td>@SpellDisplay.Spell.Duration</td>
+    <SpellVersionHelper Spell="SpellDisplay">
+        <Pathfinder1>
+            <td>@context.SpellResistDisplay</td>
+        </Pathfinder1>
+    </SpellVersionHelper>
+    
+    <SpellVersionHelper Spell="SpellDisplay">
+        <Pathfinder1>
+            <td>@context.Spell.Components</td>
+        </Pathfinder1>
+    </SpellVersionHelper>
+
+    <td>@((MarkupString) SpellDisplay.Spell.ShortDescription)</td>
 </tr>
 
 
 
 @code {
     [Parameter, EditorRequired]
-    public required SelectedSpell Spell { get; set; }
+    public required TDisplay SpellDisplay { get; set; }
 }
 
 <style>

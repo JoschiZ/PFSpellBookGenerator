@@ -2,15 +2,15 @@
 using System.Net.Http.Json;
 using Shared;
 
-namespace SpellBookGenerator;
+namespace SpellBookGenerator.Core.Spells;
 
-public class SpellService
+public class SpellService<TSpell> where TSpell: SpellBase
 {
     private readonly HttpClient _httpClient;
     private readonly LoadingService _loadingService;
 
-    private readonly Dictionary<CharacterClass, IEnumerable<Spell>> _spellCache = [];
-    private (HashSet<CharacterClass>, IEnumerable<Spell>)? _mergedSpellListCache;
+    private readonly Dictionary<CharacterClass, IEnumerable<TSpell>> _spellCache = [];
+    private (HashSet<CharacterClass>, IEnumerable<TSpell>)? _mergedSpellListCache;
     
     public SpellService(LoadingService loadingService, HttpClient httpClient)
     {
@@ -18,7 +18,7 @@ public class SpellService
         _httpClient = httpClient;
     }
 
-    public async Task<IEnumerable<Spell>> GetSpellsAsync(IEnumerable<CharacterClass> lists, IEnumerable<SourceFile> sourceFiles, CancellationToken ctx = default)
+    public async Task<IEnumerable<TSpell>> GetSpellsAsync(IEnumerable<CharacterClass> lists, IEnumerable<SourceFile> sourceFiles, CancellationToken ctx = default)
     {
         var classesToLoad = lists.ToImmutableArray();
         var sourceBooksToLoad = sourceFiles.Select(s => s.InternalName).ToImmutableHashSet();
@@ -39,8 +39,8 @@ public class SpellService
             }
         }
         
-        List<IEnumerable<Spell>> allSpellLists = [];
-        List<Task<(CharacterClass characterClass, Task<IEnumerable<Spell>?> fetchSpells)>> fetchSpellsTasks = [];
+        List<IEnumerable<TSpell>> allSpellLists = [];
+        List<Task<(CharacterClass characterClass, Task<IEnumerable<TSpell>?> fetchSpells)>> fetchSpellsTasks = [];
         
         foreach (var characterClass in classesToLoad)
         {
@@ -52,7 +52,7 @@ public class SpellService
                 continue;
             }
             
-            var fetchSpells = _httpClient.GetFromJsonAsync<IEnumerable<Spell>>($"data/{characterClass.ToString()}.json", cancellationToken: ctx);
+            var fetchSpells = _httpClient.GetFromJsonAsync<IEnumerable<TSpell>>($"data/{characterClass.ToString()}.json", cancellationToken: ctx);
             fetchSpellsTasks.Add(Task.FromResult((characterClass, fetchSpells)));
         }
 

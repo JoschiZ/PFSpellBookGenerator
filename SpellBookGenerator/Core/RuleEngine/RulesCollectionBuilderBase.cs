@@ -10,7 +10,7 @@ public abstract class RulesCollectionBuilderBase<TObject>(Guid ruleId) : IRuleBu
 
     public IEnumerable<IRuleBuilder<TObject>> Rules => _rulesDictionary.Values;
     
-    public StringRuleBuilder<TObject> Add(Func<TObject, string?> selector)
+    public StringRuleBuilder<TObject> Add(Func<TObject, string> selector)
     {
         var ruleId = Guid.NewGuid();
         var srb = new StringRuleBuilder<TObject>(selector, ruleId);

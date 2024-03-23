@@ -1,13 +1,15 @@
 ﻿@using SpellBookGenerator.Core.RuleEngine
+@using SpellBookGenerator.Core.Spells
+@typeparam TSpell where TSpell: Shared.SpellBase
 
 
 <MudPaper Outlined Elevation="2" Class="rule-collection">
     <MudStack Style="margin-bottom: 0.5rem" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Row>
-        @if (RuleBuilder is AnyRulesCollectionBuilder<SelectedSpell>)
+        @if (RuleBuilder is AnyRulesCollectionBuilder<SpellDisplay<TSpell>>)
         {
             <MudText>Any Of</MudText>
         }
-        @if (RuleBuilder is AllRulesCollectionBuilder<SelectedSpell>)
+        @if (RuleBuilder is AllRulesCollectionBuilder<SpellDisplay<TSpell>>)
         {
             <MudText>All Of</MudText>
         }
@@ -25,17 +27,17 @@
     {
         switch (childBuilder)
         {
-            case RulesCollectionBuilderBase<SelectedSpell> childCollection:
+            case RulesCollectionBuilderBase<SpellDisplay<TSpell>> childCollection:
                 <RuleCollection RuleBuilder="childCollection">
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(childCollection.RuleId)">Remove</MudButton>
                 </RuleCollection>
                 break;
-            case StringRuleBuilder<SelectedSpell> stringRule:
+            case StringRuleBuilder<SpellDisplay<TSpell>> stringRule:
                 <StringRule RuleBuilder="stringRule">
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(stringRule.RuleId)">Remove</MudButton>
                 </StringRule>
                 break;
-            case NumericRuleBuilder<SelectedSpell, int> intRule:
+            case NumericRuleBuilder<SpellDisplay<TSpell>, int> intRule:
                 <IntRule RuleBuilder="intRule">
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(intRule.RuleId)">Remove</MudButton>
                 </IntRule>
@@ -55,7 +57,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public required RulesCollectionBuilderBase<SelectedSpell> RuleBuilder { get; set; }
+    public required RulesCollectionBuilderBase<SpellDisplay<TSpell>> RuleBuilder { get; set; }
     
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
