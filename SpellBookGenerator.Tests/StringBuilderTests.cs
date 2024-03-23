@@ -10,7 +10,7 @@ public class StringBuilderTests
     {
         var value = "HelloWorld";
         var valueToContain = "Hello";
-        var rb = new StringRuleBuilder<string?>(objectToTest => objectToTest, Guid.NewGuid()).Should().Contain(valueToContain).Build();
+        var rb = new StringRuleBuilder<string>(objectToTest => objectToTest, Guid.NewGuid()).Should().Contain(valueToContain).Build();
         Assert.True(rb(value));
     }
     
@@ -19,7 +19,7 @@ public class StringBuilderTests
     {
         var value = "HelloWorld";
         var valueToContain = "x";
-        var rb = new StringRuleBuilder<string?>((o => o), Guid.NewGuid()).Should().Not().Contain(valueToContain).Build();
+        var rb = new StringRuleBuilder<string>((o => o), Guid.NewGuid()).Should().Not().Contain(valueToContain).Build();
         Assert.True(rb(value));
     }
     
@@ -28,7 +28,7 @@ public class StringBuilderTests
     {
         var value = "HelloWorld";
         var valueToContain = "HelloWorld";
-        var rb = new StringRuleBuilder<string?>((o => o), Guid.NewGuid()).Should().Equal(valueToContain).Build();
+        var rb = new StringRuleBuilder<string>((o => o), Guid.NewGuid()).Should().Equal(valueToContain).Build();
         Assert.True(rb(value));
     }
 
@@ -36,7 +36,7 @@ public class StringBuilderTests
     public void ShouldNotEqual()
     {
         var value = "HelloWorld";
-        var rb = new StringRuleBuilder<string?>((o => o), Guid.NewGuid()).Should().Not().Equal("Peter").Build();
+        var rb = new StringRuleBuilder<string>((o => o), Guid.NewGuid()).Should().Not().Equal("Peter").Build();
         Assert.True(rb(value));
     }
 
