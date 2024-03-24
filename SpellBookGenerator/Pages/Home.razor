@@ -1,15 +1,22 @@
 ﻿@using SpellBookGenerator.Core
 @attribute [Route(Routes.Home)]
-@inject NavigationManager NavigationManager
 
 
-<MudLink Href="@Routes.Pathfinder1.Builder">Pathfinder 1</MudLink>
+<MudStack Style="height: 100vh" Row AlignItems="AlignItems.Center" Justify="Justify.SpaceAround" Spacing="5">
+    <MudPaper Height="10" Style="height: 50%; padding: 1rem">
+        <MudLink Href="@Routes.Pathfinder1.Builder">
+            <MudImage Style="height: 100%; width: 100%" Src="images/PF1eLogo.png" Alt="Pathfinder 1 spell book builder" ObjectFit="ObjectFit.ScaleDown"/>
+        </MudLink>
+    </MudPaper>
 
-
-@code
-{
-    protected override void OnInitialized()
-    {
-        NavigationManager.NavigateTo(Routes.Pathfinder1.Builder, replace: true);
-    }
-}
+    <MudPaper Height="10" Style="height: 50%; padding: 1rem; position: relative">
+        <MudLink Href="@Routes.Pathfinder2.Builder">
+            <MudImage Style="height: 100%; width: 100%" Src="images/PF2eLogo.png" Alt="Pathfinder 2 spell book builder" ObjectFit="ObjectFit.ScaleDown"/>
+        </MudLink>
+        <MudOverlay DarkBackground Absolute Visible="@true">
+            <MudPaper>
+                <MudText Color="Color.Success" Typo="Typo.h3" Style="font-weight: bolder">Coming Soon</MudText>
+            </MudPaper>
+        </MudOverlay>
+    </MudPaper>
+</MudStack>
