@@ -4,6 +4,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - "**.md"
+      - "**.idea**"
+      - "**SpellDataConverter**"
   workflow_dispatch:
 
 jobs:
