@@ -89,7 +89,7 @@ internal static class Pathfinder2
         }
         
         var noTraditionSpells = spells.Where(spell => !spell.Traditions.Any());
-        using var noTraditionFile = File.OpenWrite($"{outputPath}/NoTradition.json");
+        using var noTraditionFile = File.OpenWrite($"{outputPath}/traditions/none.json");
         using var noTraditionWriter = new StreamWriter(noTraditionFile);
         noTraditionWriter.Write(JsonSerializer.Serialize(noTraditionSpells));
         noTraditionWriter.Close();

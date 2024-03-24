@@ -4,24 +4,31 @@ using Shared;
 
 namespace SpellBookGenerator.Core.Spells;
 
-public class SpellService<TSpell> where TSpell: ISpell
+public class Pathfinder1SpellService
 {
     private readonly HttpClient _httpClient;
     private readonly LoadingService _loadingService;
 
-    private readonly Dictionary<CharacterClass.Pathfinder1, IEnumerable<TSpell>> _spellCache = [];
-    private (HashSet<CharacterClass.Pathfinder1>, IEnumerable<TSpell>)? _mergedSpellListCache;
+    private readonly Dictionary<CharacterClass.Pathfinder1, IEnumerable<Pathfinder1Spell>> _spellCache = [];
+    private (HashSet<CharacterClass.Pathfinder1>, IEnumerable<Pathfinder1Spell>)? _mergedSpellListCache;
     
-    public SpellService(LoadingService loadingService, HttpClient httpClient)
+    public Pathfinder1SpellService(LoadingService loadingService, HttpClient httpClient)
     {
         _loadingService = loadingService;
         _httpClient = httpClient;
     }
 
-    public async Task<IEnumerable<TSpell>> GetSpellsAsync(IEnumerable<CharacterClass.Pathfinder1> lists, IEnumerable<SourceFile> sourceFiles, CancellationToken ctx = default)
+
+    public async Task<IEnumerable<Pathfinder1Spell>> GetSpellsAsync(IEnumerable<CharacterClass.Pathfinder1> lists, IEnumerable<SourceFile> sourceFiles, CancellationToken ctx = default)
+    {
+        var spells = await GetSpellsAsync(lists, ctx);
+        var booksToLoad = sourceFiles.Select(s => s.InternalName).ToHashSet();
+        return spells.Where(s => booksToLoad.Contains(s.Source));
+    }
+    
+    public async Task<IEnumerable<Pathfinder1Spell>> GetSpellsAsync(IEnumerable<CharacterClass.Pathfinder1> lists, CancellationToken ctx = default)
     {
         var classesToLoad = lists.ToImmutableArray();
-        var sourceBooksToLoad = sourceFiles.Select(s => s.InternalName).ToImmutableHashSet();
 
         // Only load the complete data set, if all data is requested
         if (classesToLoad.Contains(CharacterClass.Pathfinder1.AllSpells))
@@ -35,12 +42,12 @@ public class SpellService<TSpell> where TSpell: ISpell
             var (k, v) = _mergedSpellListCache.Value;
             if (classesToLoad.Length == k.Count && classesToLoad.All(k.Contains))
             {
-                return v.Where(s => sourceBooksToLoad.Contains(s.Source));
+                return v;
             }
         }
         
-        List<IEnumerable<TSpell>> allSpellLists = [];
-        List<Task<(CharacterClass.Pathfinder1 characterClass, Task<IEnumerable<TSpell>?> fetchSpells)>> fetchSpellsTasks = [];
+        List<IEnumerable<Pathfinder1Spell>> allSpellLists = [];
+        List<Task<(CharacterClass.Pathfinder1 characterClass, Task<IEnumerable<Pathfinder1Spell>?> fetchSpells)>> fetchSpellsTasks = [];
         
         foreach (var characterClass in classesToLoad)
         {
@@ -52,7 +59,7 @@ public class SpellService<TSpell> where TSpell: ISpell
                 continue;
             }
             
-            var fetchSpells = _httpClient.GetFromJsonAsync<IEnumerable<TSpell>>($"data/pathfinder1/{characterClass.ToString()}.json", cancellationToken: ctx);
+            var fetchSpells = _httpClient.GetFromJsonAsync<IEnumerable<Pathfinder1Spell>>($"data/pathfinder1/{characterClass.ToString()}.json", cancellationToken: ctx);
             fetchSpellsTasks.Add(Task.FromResult((characterClass, fetchSpells)));
         }
 
@@ -79,6 +86,6 @@ public class SpellService<TSpell> where TSpell: ISpell
         // Cache the request, because it is likely that the next one will request the same data again
         _mergedSpellListCache = (classesToLoad.ToHashSet(), allSpells);
         await _loadingService.FinishLoading();
-        return allSpells.Where(s => sourceBooksToLoad.Contains(s.Source));
+        return allSpells;
     }
 }

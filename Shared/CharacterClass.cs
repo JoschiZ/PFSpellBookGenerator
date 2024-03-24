@@ -46,7 +46,8 @@ public static class CharacterClass
         Sorcerer,
         Summoner,
         Witch,
-        Wizard
+        Wizard,
+        AllSpells
     }
 }
 

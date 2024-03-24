@@ -6,5 +6,6 @@ public enum Tradition
     Arcane,
     Divine,
     Occult,
-    Primal
+    Primal,
+    All
 }

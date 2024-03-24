@@ -14,8 +14,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped(sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
-builder.Services.AddScoped<SpellService<Pathfinder1Spell>>();
-builder.Services.AddScoped<SpellService<Pathfinder2Spell>>();
+builder.Services.AddScoped<Pathfinder1SpellService>();
+builder.Services.AddScoped<Pathfinder2SpellService>();
 builder.Services.AddSingleton<LoadingService>();
 builder.Services.AddScoped<SourceService>();
 
