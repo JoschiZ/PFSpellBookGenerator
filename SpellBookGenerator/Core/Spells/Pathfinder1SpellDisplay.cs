@@ -9,18 +9,21 @@ public sealed class Pathfinder1SpellDisplay: SpellDisplay<Pathfinder1Spell>
     
     public string SchoolDisplay { get; set; }
 
-    public Pathfinder1SpellDisplay(Pathfinder1Spell spell, CharacterClass.Pathfinder1 mainCharacterClass) : base(spell, mainCharacterClass)
+    public Pathfinder1SpellDisplay(Pathfinder1Spell spell, CharacterClass.Pathfinder1 mainCharacterClass) : base(spell)
     {
         CurrentSpellLevel = GetCurrentSpellLevel(spell);
         SchoolDisplay = GetSchoolDisplay(spell);
         RangeDisplay = GetRangeDisplay(spell);
         SpellResistDisplay = GetSpellResistDisplay(spell);
         ArchivesOfNethysUrl = $"https://aonprd.com/SpellDisplay.aspx?ItemName={spell.Name}";
+        MainCharacterClass = mainCharacterClass;
     }
 
     public string SpellResistDisplay { get; set; }
     public override string RangeDisplay { get; set; }
     public override string ArchivesOfNethysUrl { get; init; }
+    
+    public CharacterClass.Pathfinder1 MainCharacterClass { get; set; }
 
     public override int GetCurrentSpellLevel(Pathfinder1Spell spell)
     {

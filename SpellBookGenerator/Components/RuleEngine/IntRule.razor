@@ -2,6 +2,7 @@
 @using SpellBookGenerator.Core.RuleEngine
 @using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
+@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
 
 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center">
     <MudSelect
@@ -40,11 +41,11 @@
         Dense
         Margin="Margin.Dense"
         Variant="Variant.Filled"
-        T="@(Func<int, NumericRuleBuilder<SpellDisplay<TSpell>, int>>)" 
+        T="@(Func<int, NumericRuleBuilder<TDisplay, int>>)" 
         ValueChanged="@ComparisonMethodChanged">
-        <MudSelectItem T="@(Func<int, NumericRuleBuilder<SpellDisplay<TSpell>, int>>)" Value="RuleBuilder.Equal"><MudText Align="Align.Center" Style="font-weight: bolder">=</MudText></MudSelectItem>
-        <MudSelectItem T="@(Func<int, NumericRuleBuilder<SpellDisplay<TSpell>, int>>)" Value="RuleBuilder.BeBiggerOrEqual"><MudText Align="Align.Center" Style="font-weight: bolder">>=</MudText></MudSelectItem>
-        <MudSelectItem T="@(Func<int, NumericRuleBuilder<SpellDisplay<TSpell>, int>>)" Value="RuleBuilder.BeSmallerOrEqual"><MudText Align="Align.Center" Style="font-weight: bolder">@("<=")</MudText></MudSelectItem>
+        <MudSelectItem T="@(Func<int, NumericRuleBuilder<TDisplay, int>>)" Value="RuleBuilder.Equal"><MudText Align="Align.Center" Style="font-weight: bolder">=</MudText></MudSelectItem>
+        <MudSelectItem T="@(Func<int, NumericRuleBuilder<TDisplay, int>>)" Value="RuleBuilder.BeBiggerOrEqual"><MudText Align="Align.Center" Style="font-weight: bolder">>=</MudText></MudSelectItem>
+        <MudSelectItem T="@(Func<int, NumericRuleBuilder<TDisplay, int>>)" Value="RuleBuilder.BeSmallerOrEqual"><MudText Align="Align.Center" Style="font-weight: bolder">@("<=")</MudText></MudSelectItem>
     </MudSelect>
     <MudNumericField Margin="Margin.Dense" DisableUnderLine T="@int" Variant="Variant.Filled" Min="0" Max="9" ValueChanged="@ComparisonValueChanged"/>
     @ChildContent
@@ -53,11 +54,11 @@
 
 @code {
     private int _comparisonValue = 0;
-    private Func<int, NumericRuleBuilder<SpellDisplay<TSpell>, int>>? _comparisonMethod;
-    private MudSelect<Func<int,NumericRuleBuilder<SpellDisplay<TSpell>,int>>>? _methodSelector;
+    private Func<int, NumericRuleBuilder<TDisplay, int>>? _comparisonMethod;
+    private MudSelect<Func<int,NumericRuleBuilder<TDisplay,int>>>? _methodSelector;
 
     [Parameter, EditorRequired]
-    public required NumericRuleBuilder<SpellDisplay<TSpell>, int> RuleBuilder { get; set; }
+    public required NumericRuleBuilder<TDisplay, int> RuleBuilder { get; set; }
     
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -68,7 +69,7 @@
         return Task.CompletedTask;
     }
 
-    private void ComparisonMethodChanged(Func<int, NumericRuleBuilder<SpellDisplay<TSpell>, int>> newMethod)
+    private void ComparisonMethodChanged(Func<int, NumericRuleBuilder<TDisplay, int>> newMethod)
     {
         if (_methodSelector is null)
         {
@@ -89,7 +90,7 @@
     {
         var property = queryableSpellPropertiesEnumerable.First();
 
-        Func<SpellDisplay<TSpell>, int> selector = property switch
+        Func<TDisplay, int> selector = property switch
         {
             QueryableNumericSpellProperties.Level => (spell => spell.CurrentSpellLevel),
             _ => throw new ArgumentOutOfRangeException()

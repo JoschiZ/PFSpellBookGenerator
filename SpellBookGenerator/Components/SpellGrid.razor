@@ -5,7 +5,6 @@
 @inject ISnackbar Snackbar
 @typeparam TSpell where TSpell: ISpell
 @typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
-@inject SpellService<TSpell> SpellService
 
 <MudDataGrid 
     ReadOnly="false" 
@@ -77,14 +76,14 @@
 @code
 {
     [Parameter, EditorRequired]
-    public required ObservableCollection<SpellDisplay<TSpell>> Spells { get; set; }
-    private MudDataGrid<SpellDisplay<TSpell>>? _spellGrid;
-    private Dictionary<string, HashSet<SpellDisplay<TSpell>>> _filteredSpells = [];
-    private FilterDefinition<SpellDisplay<TSpell>>? _filterDefinition;
+    public required ObservableCollection<TDisplay> Spells { get; set; }
+    private MudDataGrid<TDisplay>? _spellGrid;
+    private Dictionary<string, HashSet<TDisplay>> _filteredSpells = [];
+    private FilterDefinition<TDisplay>? _filterDefinition;
 
     protected override void OnInitialized()
     {
-        _filterDefinition = new FilterDefinition<SpellDisplay<TSpell>>
+        _filterDefinition = new FilterDefinition<TDisplay>
         {
             FilterFunction = x => _filteredSpells.Values.Any(set => set.Contains(x))
         };
@@ -125,7 +124,7 @@
         return Task.CompletedTask;
     }
     
-    private async Task ApplyFilterAsync(FilterContext<SpellDisplay<TSpell>> context)
+    private async Task ApplyFilterAsync(FilterContext<TDisplay> context)
     {
         if (_filterDefinition is null)
         {
@@ -134,7 +133,7 @@
         await context.Actions.ApplyFilterAsync(_filterDefinition);
     }
     
-    private Task UnselectSpell(SpellDisplay<TSpell>? spell)
+    private Task UnselectSpell(TDisplay? spell)
     {
         if (spell is null)
         {

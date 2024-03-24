@@ -3,6 +3,7 @@
 @using SpellBookGenerator.Core.RuleEngine
 @using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
+@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
 
 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center">
     <MudSelect
@@ -43,15 +44,15 @@
         Dense
         Margin="Margin.Dense"
         Variant="Variant.Filled"
-        T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)"
+        T="@(Func<string, StringRuleBuilder<TDisplay>>)"
         ValueChanged="@ComparisonMethodChanged">
-        <MudSelectItem T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)" Value="@RuleBuilder.Contain">
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<TDisplay>>)" Value="@RuleBuilder.Contain">
             <MudText Align="Align.Center">CONTAIN</MudText>
         </MudSelectItem>
-        <MudSelectItem T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)" Value="@RuleBuilder.Equal">
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<TDisplay>>)" Value="@RuleBuilder.Equal">
             <MudText Align="Align.Center">EQUAL</MudText>
         </MudSelectItem>
-        <MudSelectItem T="@(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>)" Value="@RuleBuilder.Match">
+        <MudSelectItem T="@(Func<string, StringRuleBuilder<TDisplay>>)" Value="@RuleBuilder.Match">
             <MudText Align="Align.Center">   
                 <MudTooltip Text="This uses regular expressions">
                     MATCH
@@ -66,13 +67,13 @@
 
 @code {
     private string _comparisonValue = "";
-    private Func<string, StringRuleBuilder<SpellDisplay<TSpell>>>? _comparisonMethod;
+    private Func<string, StringRuleBuilder<TDisplay>>? _comparisonMethod;
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter, EditorRequired] 
-    public required StringRuleBuilder<SpellDisplay<TSpell>> RuleBuilder { get; set; }
+    public required StringRuleBuilder<TDisplay> RuleBuilder { get; set; }
     
 
     private Task UpdateBuilder()
@@ -81,7 +82,7 @@
         return Task.CompletedTask;
     }
 
-    private void ComparisonMethodChanged(Func<string, StringRuleBuilder<SpellDisplay<TSpell>>> newMethod)
+    private void ComparisonMethodChanged(Func<string, StringRuleBuilder<TDisplay>> newMethod)
     {
         _comparisonMethod = newMethod;
         UpdateBuilder();
@@ -119,7 +120,7 @@
                 _ => throw new ArgumentOutOfRangeException()
             };
             
-            RuleBuilder.RuleFor((Func<SpellDisplay<TSpell>, string>)selector);
+            RuleBuilder.RuleFor((Func<TDisplay, string>)selector);
         }
 
 

@@ -6,7 +6,7 @@
 @using SpellBookGenerator.Core.Spells
 @using SpellBookGenerator.Core
 @using Shared
-@inject SpellService<Pathfinder1Spell> SpellService
+@inject Pathfinder1SpellService Pathfinder1SpellService
 @inject ISnackbar SnackBar
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavigationManager
@@ -118,7 +118,7 @@ Wish"
         <MudText Typo="Typo.h6" Color="Color.Primary">Filter spell add</MudText>
     </TitleContent>
     <DialogContent>
-        <RuleCollection RuleBuilder="_ruleBuilder"/>
+        <RuleCollection TDisplay="Pathfinder1SpellDisplay" TSpell="Pathfinder1Spell" RuleBuilder="_ruleBuilder"/>
         @if (_filterAddFoundSpells.Any())
         {
             <MudPaper>
@@ -140,9 +140,9 @@ Wish"
 @code
 {
     private string _massImport = "";
-    private readonly ObservableCollection<SpellDisplay<Pathfinder1Spell>> _selectedSpells = [];
+    private readonly ObservableCollection<Pathfinder1SpellDisplay> _selectedSpells = [];
     private CharacterClass.Pathfinder1 _mainSpellList;
-    private AllRulesCollectionBuilder<SpellDisplay<Pathfinder1Spell>> _ruleBuilder = new(Guid.NewGuid());
+    private AllRulesCollectionBuilder<Pathfinder1SpellDisplay> _ruleBuilder = new(Guid.NewGuid());
 
     private DialogOptions _spellFilterAddDialogOptions = new()
     {
@@ -152,7 +152,7 @@ Wish"
     };
 
     private bool _spellFilterAddDialogOpen;
-    private ObservableCollection<SpellDisplay<Pathfinder1Spell>> _filterAddFoundSpells = [];
+    private ObservableCollection<Pathfinder1SpellDisplay> _filterAddFoundSpells = [];
     private IEnumerable<CharacterClass.Pathfinder1> _selectedSpellLists = [];
     private SpellGrid<Pathfinder1Spell, Pathfinder1SpellDisplay>? _spellGrid;
     private IEnumerable<SourceFile> _sourceFiles = [];
@@ -180,7 +180,7 @@ Wish"
 
     private async Task AddSpellsByName(string spellNames)
     {
-        var spells = (await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources)).ToList();
+        var spells = (await Pathfinder1SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources)).ToList();
 
         var singleSpellNames = spellNames
             .Split("\n")
@@ -215,7 +215,7 @@ Wish"
 
     private async Task<IEnumerable<Pathfinder1Spell>> SearchSpell(string spellName, CancellationToken ctx)
     {
-        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources, ctx);
+        var spells = await Pathfinder1SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources, ctx);
         return spells.Where(spell => Fuzz.Ratio(spellName, spell.Name) > 70).Take(5).OrderBy(spell => spell.Name);
     }
 
@@ -235,15 +235,15 @@ Wish"
         return Task.CompletedTask;
     }
 
-    private async Task FilterSpells(IRuleBuilder<SpellDisplay<Pathfinder1Spell>> ruleBuilder)
+    private async Task FilterSpells(IRuleBuilder<Pathfinder1SpellDisplay> ruleBuilder)
     {
         var rule = ruleBuilder.Build();
 
-        var spells = await SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources);
+        var spells = await Pathfinder1SpellService.GetSpellsAsync(_selectedSpellLists, _selectedSources);
         var selectedSpells = spells.Select(spell => new Pathfinder1SpellDisplay(spell, _mainSpellList));
         var spellQuery = selectedSpells.Where(s => rule(s));
 
-        _filterAddFoundSpells = new ObservableCollection<SpellDisplay<Pathfinder1Spell>>(spellQuery.ToList());
+        _filterAddFoundSpells = new ObservableCollection<Pathfinder1SpellDisplay>(spellQuery.ToList());
     }
 
     private Task AddFoundFilteredSpells()
@@ -254,7 +254,7 @@ Wish"
         }
 
         _filterAddFoundSpells.Clear();
-        _ruleBuilder = new AllRulesCollectionBuilder<SpellDisplay<Pathfinder1Spell>>(Guid.NewGuid());
+        _ruleBuilder = new AllRulesCollectionBuilder<Pathfinder1SpellDisplay>(Guid.NewGuid());
         _spellFilterAddDialogOpen = false;
         return Task.CompletedTask;
     }

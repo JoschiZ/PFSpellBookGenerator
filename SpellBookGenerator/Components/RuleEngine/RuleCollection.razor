@@ -1,6 +1,7 @@
 ﻿@using SpellBookGenerator.Core.RuleEngine
 @using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
+@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
 
 
 <MudPaper Outlined Elevation="2" Class="rule-collection">
@@ -27,18 +28,18 @@
     {
         switch (childBuilder)
         {
-            case RulesCollectionBuilderBase<SpellDisplay<TSpell>> childCollection:
-                <RuleCollection RuleBuilder="childCollection">
+            case RulesCollectionBuilderBase<TDisplay> childCollection:
+                <RuleCollection TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="childCollection">
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(childCollection.RuleId)">Remove</MudButton>
                 </RuleCollection>
                 break;
-            case StringRuleBuilder<SpellDisplay<TSpell>> stringRule:
-                <StringRule RuleBuilder="stringRule">
+            case StringRuleBuilder<TDisplay> stringRule:
+                <StringRule TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="stringRule">
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(stringRule.RuleId)">Remove</MudButton>
                 </StringRule>
                 break;
-            case NumericRuleBuilder<SpellDisplay<TSpell>, int> intRule:
-                <IntRule RuleBuilder="intRule">
+            case NumericRuleBuilder<TDisplay, int> intRule:
+                <IntRule TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="intRule">
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(intRule.RuleId)">Remove</MudButton>
                 </IntRule>
                 break;
@@ -57,7 +58,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public required RulesCollectionBuilderBase<SpellDisplay<TSpell>> RuleBuilder { get; set; }
+    public required RulesCollectionBuilderBase<TDisplay> RuleBuilder { get; set; }
     
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

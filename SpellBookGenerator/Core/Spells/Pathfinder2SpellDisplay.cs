@@ -4,7 +4,7 @@ namespace SpellBookGenerator.Core.Spells;
 
 public sealed class Pathfinder2SpellDisplay: SpellDisplay<Pathfinder2Spell>
 {
-    internal Pathfinder2SpellDisplay(Pathfinder2Spell spell, CharacterClass.Pathfinder1 mainCharacterClass) : base(spell, mainCharacterClass)
+    internal Pathfinder2SpellDisplay(Pathfinder2Spell spell) : base(spell)
     {
         ArchivesOfNethysUrl = spell.NethysUrl;
         RangeDisplay = spell.Range;

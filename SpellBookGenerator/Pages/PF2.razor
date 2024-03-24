@@ -1,6 +1,23 @@
-﻿@page "/PF2"
-<h3>PF2</h3>
+﻿@attribute [Route(Routes.Pathfinder2.Builder)]
+@using System.Collections.ObjectModel
+@using Shared
+@using SpellBookGenerator.Core
+@using SpellBookGenerator.Core.Spells
+@inject Pathfinder2SpellService SpellService
+
+<SpellGrid TDisplay="Pathfinder2SpellDisplay" TSpell="Pathfinder2Spell" Spells="_spells"></SpellGrid>
 
 @code {
+    private ObservableCollection<Pathfinder2SpellDisplay> _spells = [];
     
+    protected override async Task OnInitializedAsync()
+    {
+        var spells = await SpellService.GetSpellsAsync([CharacterClass.Pathfinder2.Bard], [Tradition.Arcane]);
+        var spellDisplay = spells.Select(s => new Pathfinder2SpellDisplay(s));
+
+        foreach (var display in spellDisplay)
+        {
+            _spells.Add(display);
+        }
+    }
 }
