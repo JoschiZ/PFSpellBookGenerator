@@ -1,14 +1,49 @@
-﻿@inherits LayoutComponentBase
+﻿@using SpellBookGenerator.Core
+@inherits LayoutComponentBase
 
 <MudThemeProvider IsDarkMode="true"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 <LoadingOverlayProvider/>
 
-<div class="page">
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<MudLayout>
+    <MudAppBar Elevation="1" Dense>
+            <MudLink Class="home-link" Href="@Routes.Home">
+                <MudImage Class="icon" Src="favicon.svg" ObjectFit="ObjectFit.ScaleDown" ObjectPosition="ObjectPosition.Center" Alt="logo"/>
+            </MudLink>
+            <MudSpacer/>
+            <MudText Typo="Typo.h5" Class="ml-3" Color="Color.Primary">Pathfinder Spellbook Generator</MudText>
+            <MudSpacer/>
+            <MudIconButton 
+                Icon="@Icons.Custom.Brands.GitHub" 
+                Href="https://github.com/JoschiZ/PFSpellBookGenerator" 
+                Color="Color.Inherit" 
+                Edge="Edge.End"/>
+    </MudAppBar>
+    <MudMainContent Class="main-layout">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+<style>
+    .main-layout{
+        height: calc(100vh - calc(var(--mud-appbar-height) - var(--mud-appbar-height)/4));
+        padding-left: 1rem;
+        padding-right: 1rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .icon{
+        -webkit-filter: invert(.75); /* safari 6.0 - 9.0 */
+        filter: invert(.75);
+        height: 85%;
+    }
+    
+    .home-link{
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-items: center;
+    }
+</style>

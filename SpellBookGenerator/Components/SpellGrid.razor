@@ -16,10 +16,21 @@
     Filterable
     FilterCaseSensitivity="DataGridFilterCaseSensitivity.Ignore"
     FilterMode="DataGridFilterMode.Simple"
+    Dense
+    Hover
 >
-    <Columns>
+    <Columns >
         <HierarchyColumn/>
-        <PropertyColumn Title="Level" IsEditable Property="arg => arg.CurrentSpellLevel" Grouping GroupBy="spell => spell.CurrentSpellLevel">
+        <PropertyColumn
+            Title="Level" 
+            Filterable="false" 
+            ShowFilterIcon="false"
+            ShowColumnOptions="false"
+            Sortable="false"
+            IsEditable
+            Property="arg => arg.CurrentSpellLevel" 
+            Grouping
+            GroupBy="spell => spell.CurrentSpellLevel">
             <FilterTemplate>
                 <MudTextField T="string" ValueChanged="@((string value) => OnFilterChanged(value, nameof(ISpell.Name)))"/>
                 <MudButton OnClick="@(() => ApplyFilterAsync(context))">Filter</MudButton>
@@ -58,7 +69,7 @@
         <PropertyColumn Property="arg => arg.Spell.ShortDescription" Title="Description"/>
         <TemplateColumn Filterable="false" Sortable="false" ShowColumnOptions="false" ShowFilterIcon="false">
             <CellTemplate>
-                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => UnselectSpell(context.Item)">Remove</MudButton>
+                <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Error" OnClick="() => UnselectSpell(context.Item)">Remove</MudButton>
             </CellTemplate>
         </TemplateColumn>
         
@@ -67,11 +78,18 @@
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
             </CellTemplate>
         </TemplateColumn>
-    </Columns>
+    </Columns >
     <ChildRowContent>
         @((MarkupString) context.Item.Spell.DescriptionFormatted)
     </ChildRowContent>
 </MudDataGrid>
+
+<style>
+    .mud-table-dense * .mud-table-row .mud-table-cell{
+        padding-inline-start: 10px; !important;
+        padding-inline-end: 14px; !important;
+    }
+</style>
 
 @code
 {
