@@ -4,7 +4,7 @@
 @using Shared
 @inject ISnackbar Snackbar
 @typeparam TSpell where TSpell: ISpell
-@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
+@typeparam TDisplay where TDisplay: ISpellDisplay<TSpell>
 
 <MudDataGrid 
     ReadOnly="false" 
@@ -93,7 +93,7 @@
     {
         if (_spellGrid is not null)
         {
-            await _spellGrid.SetSortAsync(nameof(SpellDisplay<TSpell>.CurrentSpellLevel), SortDirection.Ascending, x => x.CurrentSpellLevel, new MudBlazor.Utilities.NaturalComparer());
+            await _spellGrid.SetSortAsync(nameof(ISpellDisplay<TSpell>.CurrentSpellLevel), SortDirection.Ascending, x => x.CurrentSpellLevel, new MudBlazor.Utilities.NaturalComparer());
         }
     }
     

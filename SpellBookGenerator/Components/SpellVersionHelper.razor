@@ -19,5 +19,5 @@
     public RenderFragment<Pathfinder2SpellDisplay>? Pathfinder2 { get; set; }
     
     [Parameter, EditorRequired]
-    public required SpellDisplay<TSpell> Spell { get; set; }
+    public required ISpellDisplay<TSpell> Spell { get; set; }
 }

@@ -4,28 +4,31 @@ using Shared;
 
 namespace SpellBookGenerator.Core.Spells;
 
-public sealed class Pathfinder1SpellDisplay: SpellDisplay<Pathfinder1Spell>
+public sealed class Pathfinder1SpellDisplay: ISpellDisplay<Pathfinder1Spell>
 {
     
     public string SchoolDisplay { get; set; }
 
-    public Pathfinder1SpellDisplay(Pathfinder1Spell spell, CharacterClass.Pathfinder1 mainCharacterClass) : base(spell)
+    public Pathfinder1SpellDisplay(Pathfinder1Spell spell, CharacterClass.Pathfinder1 mainCharacterClass)
     {
         CurrentSpellLevel = GetCurrentSpellLevel(spell);
         SchoolDisplay = GetSchoolDisplay(spell);
-        RangeDisplay = GetRangeDisplay(spell);
+        RangeDisplay = spell.GetRangeDisplay();
         SpellResistDisplay = GetSpellResistDisplay(spell);
         ArchivesOfNethysUrl = $"https://aonprd.com/SpellDisplay.aspx?ItemName={spell.Name}";
+        Spell = spell;
         MainCharacterClass = mainCharacterClass;
     }
 
     public string SpellResistDisplay { get; set; }
-    public override string RangeDisplay { get; set; }
-    public override string ArchivesOfNethysUrl { get; init; }
+    public Pathfinder1Spell Spell { get; set; }
+    public int CurrentSpellLevel { get; set; }
+    public string RangeDisplay { get; set; }
+    public string ArchivesOfNethysUrl { get; init; }
     
     public CharacterClass.Pathfinder1 MainCharacterClass { get; set; }
 
-    public override int GetCurrentSpellLevel(Pathfinder1Spell spell)
+    public int GetCurrentSpellLevel(Pathfinder1Spell spell)
     {
         return spell.Levels.GetGradeForClass(MainCharacterClass) ?? spell.Levels.GetLowestSpellGrade();
     }
@@ -50,18 +53,7 @@ public sealed class Pathfinder1SpellDisplay: SpellDisplay<Pathfinder1Spell>
     }
 
 
-    private protected override string GetRangeDisplay(Pathfinder1Spell spellBase)
-    {
-        var sb = new StringBuilder();
-        sb.Append(spellBase.Range);
 
-        if (!string.IsNullOrWhiteSpace(spellBase.Targets))
-        {
-            sb.Append($" ({spellBase.Targets})");
-        }
-
-        return sb.ToString();
-    }
 
     private static string GetSpellResistDisplay(Pathfinder1Spell spellBase)
     {

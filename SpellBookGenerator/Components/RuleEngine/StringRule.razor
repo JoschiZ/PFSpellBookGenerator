@@ -3,7 +3,7 @@
 @using SpellBookGenerator.Core.RuleEngine
 @using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
-@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
+@typeparam TDisplay where TDisplay: ISpellDisplay<TSpell>
 
 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center">
     <MudSelect
@@ -94,13 +94,16 @@
         UpdateBuilder();
     }
     
+
+    
+    
     private void OnSelectionChanged(IEnumerable<QueryableStringSpellProperties> queryableSpellPropertiesEnumerable)
     {
         var property = queryableSpellPropertiesEnumerable.First();
 
-        if (typeof(TSpell) == typeof(Pathfinder1Spell))
+        if (typeof(TDisplay) == typeof(Pathfinder1SpellDisplay))
         {
-            Func<SpellDisplay<Pathfinder1Spell>, string> selector = property switch
+            Func<ISpellDisplay<Pathfinder1Spell>, string> selector = property switch
             {
                 QueryableStringSpellProperties.Area => (selectedSpell) => selectedSpell.Spell.Area,
                 QueryableStringSpellProperties.Components => (selectedSpell) => selectedSpell.Spell.Components,
@@ -119,12 +122,11 @@
                 QueryableStringSpellProperties.SubSchool => (selectedSpell) => selectedSpell.Spell.SubSchool,
                 _ => throw new ArgumentOutOfRangeException()
             };
+
+            var adaptedSelector = (TDisplay display) => selector((ISpellDisplay<Pathfinder1Spell>)display);
             
-            RuleBuilder.RuleFor((Func<TDisplay, string>)selector);
+            RuleBuilder.RuleFor(adaptedSelector);
         }
-
-
-
         UpdateBuilder();
     }
 

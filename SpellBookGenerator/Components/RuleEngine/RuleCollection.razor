@@ -1,16 +1,16 @@
 ﻿@using SpellBookGenerator.Core.RuleEngine
 @using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
-@typeparam TDisplay where TDisplay: SpellDisplay<TSpell>
+@typeparam TDisplay where TDisplay: ISpellDisplay<TSpell>
 
 
 <MudPaper Outlined Elevation="2" Class="rule-collection">
     <MudStack Style="margin-bottom: 0.5rem" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Row>
-        @if (RuleBuilder is AnyRulesCollectionBuilder<SpellDisplay<TSpell>>)
+        @if (RuleBuilder is AnyRulesCollectionBuilder<ISpellDisplay<TSpell>>)
         {
             <MudText>Any Of</MudText>
         }
-        @if (RuleBuilder is AllRulesCollectionBuilder<SpellDisplay<TSpell>>)
+        @if (RuleBuilder is AllRulesCollectionBuilder<ISpellDisplay<TSpell>>)
         {
             <MudText>All Of</MudText>
         }
