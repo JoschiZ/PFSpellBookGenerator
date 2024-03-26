@@ -115,7 +115,7 @@ Wish"
         <MudText Typo="Typo.h6" Color="Color.Primary">Filter spell add</MudText>
     </TitleContent>
     <DialogContent>
-        <RuleCollection TDisplay="Pathfinder1SpellDisplay" TSpell="Pathfinder1Spell" RuleBuilder="_ruleBuilder"/>
+        <RuleCollection QueryableIntegers="Pathfinder1SpellDisplay.QueryableIntegers" QueryableStrings="Pathfinder1SpellDisplay.QueryableStrings" TDisplay="Pathfinder1SpellDisplay" TSpell="Pathfinder1Spell" RuleBuilder="_ruleBuilder"/>
         @if (_filterAddFoundSpells.Any())
         {
             <MudPaper>

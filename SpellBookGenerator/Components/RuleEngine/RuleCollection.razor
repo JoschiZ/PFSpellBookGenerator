@@ -1,4 +1,5 @@
-﻿@using SpellBookGenerator.Core.RuleEngine
+﻿@using Shared
+@using SpellBookGenerator.Core.RuleEngine
 @using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
 @typeparam TDisplay where TDisplay: ISpellDisplay<TSpell>
@@ -29,19 +30,25 @@
         switch (childBuilder)
         {
             case RulesCollectionBuilderBase<TDisplay> childCollection:
-                <RuleCollection TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="childCollection">
+                <RuleCollection QueryableIntegers="@QueryableIntegers" QueryableStrings="@QueryableStrings" TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="childCollection">
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(childCollection.RuleId)">Remove</MudButton>
                 </RuleCollection>
                 break;
             case StringRuleBuilder<TDisplay> stringRule:
-                <StringRule TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="stringRule">
-                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(stringRule.RuleId)">Remove</MudButton>
-                </StringRule>
+                @if (QueryableStrings is not null)
+                {
+                    <StringRule QueryableProperties="@QueryableStrings" TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="stringRule">
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(stringRule.RuleId)">Remove</MudButton>
+                    </StringRule>
+                }
                 break;
             case NumericRuleBuilder<TDisplay, int> intRule:
-                <IntRule TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="intRule">
-                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(intRule.RuleId)">Remove</MudButton>
-                </IntRule>
+                @if (QueryableIntegers is not null)
+                {
+                    <IntRule QueryableProperties="@QueryableIntegers" TDisplay="TDisplay" TSpell="TSpell" RuleBuilder="intRule">
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => RemoveChildRule(intRule.RuleId)">Remove</MudButton>
+                    </IntRule>
+                }
                 break;
         }
     }
@@ -59,6 +66,12 @@
 @code {
     [Parameter, EditorRequired]
     public required RulesCollectionBuilderBase<TDisplay> RuleBuilder { get; set; }
+    
+    [Parameter]
+    public IEnumerable<QueryableInfo<TDisplay, string>>? QueryableStrings { get; set; } 
+    
+    [Parameter]
+    public IEnumerable<QueryableInfo<TDisplay, int>>? QueryableIntegers { get; set; }
     
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

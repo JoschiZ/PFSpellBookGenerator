@@ -29,7 +29,8 @@
             IsEditable
             Property="arg => arg.CurrentSpellLevel" 
             Grouping
-            GroupBy="spell => spell.CurrentSpellLevel">
+            GroupBy="spell => spell.CurrentSpellLevel"
+            >
             <FilterTemplate>
                 <MudTextField T="string" ValueChanged="@((string value) => OnFilterChanged(value, nameof(ISpell.Name)))"/>
                 <MudButton OnClick="@(() => ApplyFilterAsync(context))">Filter</MudButton>

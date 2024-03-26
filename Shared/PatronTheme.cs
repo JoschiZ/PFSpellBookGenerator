@@ -41,7 +41,7 @@ public enum PatronTheme
 
 public static partial class PatronThemeExtensions
 {
-    public static Tradition GeTradition(this PatronTheme theme)
+    public static Tradition GetTradition(this PatronTheme theme)
     {
         return theme switch
         {

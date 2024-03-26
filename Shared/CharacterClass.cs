@@ -1,4 +1,8 @@
-﻿namespace Shared;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using NetEscapades.EnumGenerators;
+
+namespace Shared;
 
 public static class CharacterClass
 {
@@ -32,6 +36,7 @@ public static class CharacterClass
         Hunter
     }
     
+    [EnumExtensions]
     public enum Pathfinder2
     {
         Bard,
@@ -47,7 +52,7 @@ public static class CharacterClass
         Summoner,
         Witch,
         Wizard,
-        AllSpells
+        Other,
     }
 }
 

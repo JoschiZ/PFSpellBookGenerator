@@ -7,7 +7,7 @@ public interface ISpell
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public abstract string CastingTime { get; set; }
+    public string CastingTime { get; set; }
     public string Range { get; set; }
     public string Area { get; set; }
     public string Targets { get; set; }

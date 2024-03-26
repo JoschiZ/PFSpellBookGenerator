@@ -1,5 +1,4 @@
 ﻿@using Shared
-@using SpellBookGenerator.Core
 @using SpellBookGenerator.Core.RuleEngine
 @using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
@@ -11,13 +10,14 @@
         Dense
         Margin="Margin.Dense"
         Variant="Variant.Filled"
-        T="@(QueryableStringSpellProperties)"
+        T="@(Func<TDisplay, string>)"
         Style="min-width: 9rem"
-        SelectedValuesChanged="@OnSelectionChanged">
-            @foreach (var prop in Enum.GetValues<QueryableStringSpellProperties>().OrderBy(prop => prop.ToStringFast()))
+        ValueChanged="@OnSelectionChanged"
+        >
+            @foreach (var prop in QueryableProperties)
             {
-                <MudSelectItem T="@(QueryableStringSpellProperties)" Value="prop">
-                    <MudText Align="Align.Center">@prop.ToStringFast()</MudText>
+                <MudSelectItem T="@(Func<TDisplay, string>)" Value="prop.Selector">
+                    <MudText Align="Align.Center">@prop.Name</MudText>
                 </MudSelectItem>
             }
     </MudSelect>
@@ -74,7 +74,10 @@
 
     [Parameter, EditorRequired] 
     public required StringRuleBuilder<TDisplay> RuleBuilder { get; set; }
-    
+
+    [Parameter, EditorRequired] 
+    public required IEnumerable<QueryableInfo<TDisplay, string>> QueryableProperties { get; set; }
+
 
     private Task UpdateBuilder()
     {
@@ -94,39 +97,9 @@
         UpdateBuilder();
     }
     
-
-    
-    
-    private void OnSelectionChanged(IEnumerable<QueryableStringSpellProperties> queryableSpellPropertiesEnumerable)
+    private void OnSelectionChanged(Func<TDisplay, string> newSelector)
     {
-        var property = queryableSpellPropertiesEnumerable.First();
-
-        if (typeof(TDisplay) == typeof(Pathfinder1SpellDisplay))
-        {
-            Func<ISpellDisplay<Pathfinder1Spell>, string> selector = property switch
-            {
-                QueryableStringSpellProperties.Area => (selectedSpell) => selectedSpell.Spell.Area,
-                QueryableStringSpellProperties.Components => (selectedSpell) => selectedSpell.Spell.Components,
-                QueryableStringSpellProperties.Descriptor => (selectedSpell) => selectedSpell.Spell.Descriptor,
-                QueryableStringSpellProperties.Duration => (selectedSpell) => selectedSpell.Spell.Duration,
-                QueryableStringSpellProperties.Name => (selectedSpell) => selectedSpell.Spell.Name,
-                QueryableStringSpellProperties.Range => (selectedSpell) => selectedSpell.Spell.Range,
-                QueryableStringSpellProperties.School => (selectedSpell) => selectedSpell.Spell.School,
-                QueryableStringSpellProperties.Source => (selectedSpell) => selectedSpell.Spell.Source,
-                QueryableStringSpellProperties.Targets => (selectedSpell) => selectedSpell.Spell.Targets,
-                QueryableStringSpellProperties.CastingTime => (selectedSpell) => selectedSpell.Spell.CastingTime,
-                QueryableStringSpellProperties.Description => (selectedSpell) => selectedSpell.Spell.DescriptionFormatted,
-                QueryableStringSpellProperties.SavingThrow => (selectedSpell) => selectedSpell.Spell.SavingThrow,
-                QueryableStringSpellProperties.ShortDescription => (selectedSpell) => selectedSpell.Spell.ShortDescription,
-                QueryableStringSpellProperties.SpellResistance => (selectedSpell) => selectedSpell.Spell.SpellResistance,
-                QueryableStringSpellProperties.SubSchool => (selectedSpell) => selectedSpell.Spell.SubSchool,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-            var adaptedSelector = (TDisplay display) => selector((ISpellDisplay<Pathfinder1Spell>)display);
-            
-            RuleBuilder.RuleFor(adaptedSelector);
-        }
+        RuleBuilder.RuleFor(newSelector);
         UpdateBuilder();
     }
 

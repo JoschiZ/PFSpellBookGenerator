@@ -4,7 +4,7 @@ using Shared;
 
 namespace SpellBookGenerator.Core.Spells;
 
-public sealed class Pathfinder1SpellDisplay: ISpellDisplay<Pathfinder1Spell>
+public sealed class Pathfinder1SpellDisplay: ISpellDisplay<Pathfinder1Spell>, IHasQueryableStrings<Pathfinder1SpellDisplay>, IHasQueryableInters<Pathfinder1SpellDisplay>
 {
     
     public string SchoolDisplay { get; set; }
@@ -25,6 +25,31 @@ public sealed class Pathfinder1SpellDisplay: ISpellDisplay<Pathfinder1Spell>
     public int CurrentSpellLevel { get; set; }
     public string RangeDisplay { get; set; }
     public string ArchivesOfNethysUrl { get; init; }
+    
+    public static IEnumerable<QueryableInfo<Pathfinder1SpellDisplay, string>> QueryableStrings { get; } = 
+    [
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Name", display => display.Spell.Name),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Casting Time", display => display.Spell.CastingTime),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Range", display => display.Spell.Range),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Area", display => display.Spell.Area),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Targets", display => display.Spell.Targets),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Duration", display => display.Spell.Duration),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Saving Throw", display => display.Spell.SavingThrow),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Description", display => display.Spell.DescriptionFormatted),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Source", display => display.Spell.Source),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Short Description", display => display.Spell.ShortDescription),
+        
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("School", display => display.Spell.School),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Sub school", display => display.Spell.SubSchool),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Descriptor", display => display.Spell.Descriptor),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Spell resistance", display => display.Spell.SpellResistance),
+        new QueryableInfo<Pathfinder1SpellDisplay, string>("Components", display => display.Spell.Components),
+    ];
+
+    public static IEnumerable<QueryableInfo<Pathfinder1SpellDisplay, int>> QueryableIntegers { get; } =
+    [
+        new QueryableInfo<Pathfinder1SpellDisplay, int>("Level", display => display.CurrentSpellLevel),
+    ];
     
     public CharacterClass.Pathfinder1 MainCharacterClass { get; set; }
 
@@ -51,10 +76,7 @@ public sealed class Pathfinder1SpellDisplay: ISpellDisplay<Pathfinder1Spell>
 
         return sb.ToString();
     }
-
-
-
-
+    
     private static string GetSpellResistDisplay(Pathfinder1Spell spellBase)
     {
         var sb = new StringBuilder();
@@ -67,4 +89,6 @@ public sealed class Pathfinder1SpellDisplay: ISpellDisplay<Pathfinder1Spell>
 
         return sb.ToString();
     }
+
+
 }

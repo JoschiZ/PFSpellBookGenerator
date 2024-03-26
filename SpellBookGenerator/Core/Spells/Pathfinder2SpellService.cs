@@ -21,6 +21,28 @@ public class Pathfinder2SpellService
         _httpClient = httpClient;
     }
 
+    public async Task<IEnumerable<Pathfinder2Spell>> GetAllSpells(CancellationToken ctx = default)
+    {
+        if (_traditionSpellCache.TryGetValue(Tradition.All, out var spells))
+        {
+            return spells;
+        }
+
+        var loadSpellsTask =
+            _httpClient.GetFromJsonAsync<IEnumerable<Pathfinder2Spell>>("data/pathfinder2/AllSpells.json", cancellationToken: ctx);
+
+        var loadingTask = _loadingService.ShowAsync("Loading Spells", () => loadSpellsTask);
+        var loadedSpells = (await loadingTask)?.ToImmutableArray();
+        
+        if (loadedSpells is null)
+        {
+            return [];
+        }
+        
+        _traditionSpellCache.Add(Tradition.All, loadedSpells);
+        return loadedSpells;
+    }
+
     /// <summary>
     /// Checks if the last requested set of data is equal to the currently requested set of data. 
     /// </summary>
@@ -53,11 +75,6 @@ public class Pathfinder2SpellService
         var traditionsToLoad = traditions.ToImmutableHashSet();
 
         // Only load the complete data set, if all data is requested
-        if (classesToLoad.Contains(CharacterClass.Pathfinder2.AllSpells))
-        {
-            classesToLoad = [CharacterClass.Pathfinder2.AllSpells];
-        }
-
         if (traditionsToLoad.Contains(Tradition.All))
         {
             traditionsToLoad = [Tradition.All];

@@ -60,7 +60,7 @@ internal static class Pathfinder2
         allSpellsWriter.Write(JsonSerializer.Serialize(spells));
 
         var traditions = spells.Select(spell => spell.Traditions).SelectMany(traditions => traditions).ToHashSet();
-        traditions.Remove("N/A");
+
         
         foreach (var tradition in traditions)
         {

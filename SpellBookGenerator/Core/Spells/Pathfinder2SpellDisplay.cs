@@ -2,7 +2,7 @@
 
 namespace SpellBookGenerator.Core.Spells;
 
-public sealed class Pathfinder2SpellDisplay: ISpellDisplay<Pathfinder2Spell>
+public sealed class Pathfinder2SpellDisplay: ISpellDisplay<Pathfinder2Spell>, IHasQueryableStrings<Pathfinder2SpellDisplay>, IHasQueryableInters<Pathfinder2SpellDisplay>
 {
     internal Pathfinder2SpellDisplay(Pathfinder2Spell spell)
     {
@@ -17,4 +17,26 @@ public sealed class Pathfinder2SpellDisplay: ISpellDisplay<Pathfinder2Spell>
     public int CurrentSpellLevel { get; set; }
     public string RangeDisplay { get; set; }
     public string ArchivesOfNethysUrl { get; init; }
+    
+    public static IEnumerable<QueryableInfo<Pathfinder2SpellDisplay, string>> QueryableStrings { get; } = 
+    [
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Name", display => display.Spell.Name),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Casting Time", display => display.Spell.CastingTime),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Range", display => display.Spell.Range),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Area", display => display.Spell.Area),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Targets", display => display.Spell.Targets),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Duration", display => display.Spell.Duration),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Saving Throw", display => display.Spell.SavingThrow),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Description", display => display.Spell.DescriptionFormatted),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Source", display => display.Spell.Source),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Short Description", display => display.Spell.ShortDescription),
+        
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Traits", display => string.Join(" ", display.Spell.Traits)),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Components", display => string.Join(" ", display.Spell.Components)),
+    ];
+
+    public static IEnumerable<QueryableInfo<Pathfinder2SpellDisplay, int>> QueryableIntegers { get; } =
+    [
+        new QueryableInfo<Pathfinder2SpellDisplay, int>("Level", display => display.CurrentSpellLevel),
+    ];
 }
