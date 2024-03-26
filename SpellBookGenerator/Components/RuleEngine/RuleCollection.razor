@@ -7,11 +7,11 @@
 
 <MudPaper Outlined Elevation="2" Class="rule-collection">
     <MudStack Style="margin-bottom: 0.5rem" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Row>
-        @if (RuleBuilder is AnyRulesCollectionBuilder<ISpellDisplay<TSpell>>)
+        @if (RuleBuilder is AnyRulesCollectionBuilder<TDisplay>)
         {
             <MudText>Any Of</MudText>
         }
-        @if (RuleBuilder is AllRulesCollectionBuilder<ISpellDisplay<TSpell>>)
+        @if (RuleBuilder is AllRulesCollectionBuilder<TDisplay>)
         {
             <MudText>All Of</MudText>
         }

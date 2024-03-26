@@ -9,82 +9,100 @@
 @inject Pathfinder2SpellService SpellService
 @inject IJsApiService JsService
 @inject ISnackbar Snackbar
-<MudCard>
-    <MudCardContent>
-        <MudToggleGroup ValuesChanged="@OnSelectedClassesChanged" T="CharacterClass.Pathfinder2" SelectionMode="SelectionMode.MultiSelection">
-            @foreach (var characterClass in Pathfinder2Extensions.GetValues())
-            {
-                <MudToggleItem T="CharacterClass.Pathfinder2" Value="characterClass">
-                    <MudText Class="toggle-item-text">@characterClass.ToStringFast()</MudText>
-                </MudToggleItem>
-            }
-        </MudToggleGroup>
-        <MudDivider DividerType="DividerType.Inset"/>
-        <MudToggleGroup @bind-Values="@_selectedTraditions" T="Tradition" SelectionMode="SelectionMode.MultiSelection">
-            @foreach (var tradition in TraditionExtensions.GetValues().Where(tradition => tradition != Tradition.All))
-            {
-                <MudToggleItem T="Tradition" Value="tradition">
-                    <MudText Class="toggle-item-text">@tradition.ToStringFast()</MudText>
-                </MudToggleItem>
-            }
-        </MudToggleGroup>
-    </MudCardContent>
-</MudCard>
 
-<MudCard Style="width: 40%">
-    <MudCardHeader>
-        <MudText Typo="Typo.h3" Color="Color.Primary">Mass Import</MudText>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudAutocomplete
-            T="@Pathfinder2Spell"
-            SearchFuncWithCancel="@SearchSpell"
-            MinCharacters="3"
-            ResetValueOnEmptyText
-            CoerceText
-            ToStringFunc="spell => spell.Name"
-            ValueChanged="@OnSpellSelected"
-            ShowProgressIndicator/>
-        <MudTextField
-            Placeholder=
-            "Light
+<MudStack Spacing="3">
+    <MudCard>
+        <MudCardContent>
+            <MudStack Spacing="2">
+                <MudToggleGroup ValuesChanged="@OnSelectedClassesChanged" T="CharacterClass.Pathfinder2" SelectionMode="SelectionMode.MultiSelection">
+                    @foreach (var characterClass in Pathfinder2Extensions.GetValues())
+                    {
+                        <MudToggleItem T="CharacterClass.Pathfinder2" Value="characterClass">
+                            <MudText Class="toggle-item-text">@characterClass.ToStringFast()</MudText>
+                        </MudToggleItem>
+                    }
+                </MudToggleGroup>
+                <MudDivider DividerType="DividerType.Middle"/>
+                <MudToggleGroup @bind-Values="@_selectedTraditions" T="Tradition" SelectionMode="SelectionMode.MultiSelection">
+                    @foreach (var tradition in TraditionExtensions.GetValues().Where(tradition => tradition != Tradition.All))
+                    {
+                        <MudToggleItem T="Tradition" Value="tradition">
+                            <MudText Class="toggle-item-text">@tradition.ToStringFast()</MudText>
+                        </MudToggleItem>
+                    }
+                </MudToggleGroup></MudStack>
+        </MudCardContent>
+    </MudCard>
+
+    <MudStack Row Spacing="3">
+        <MudCard Style="width: 40%">
+            <MudCardHeader>
+                <MudText Typo="Typo.h4" Color="Color.Primary">Direct Import</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudStack Spacing="2">
+                    <MudAutocomplete
+                        T="@Pathfinder2Spell"
+                        SearchFuncWithCancel="@SearchSpell"
+                        MinCharacters="3"
+                        ResetValueOnEmptyText
+                        CoerceText
+                        ToStringFunc="spell => spell.Name"
+                        ValueChanged="@OnSpellSelected"
+                        ShowProgressIndicator
+                        Placeholder="Light"
+                        HelperText="Search by name"/>
+
+                    <MudDivider DividerType="DividerType.Middle"/>
+
+                    <MudTextField
+                        Placeholder=
+                        "Light
 Fireball
 Wish"
-            AutoGrow Lines="5" MaxLines="10" Variant="Variant.Outlined" @bind-Value="@_multiSPellNameImport"/>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton OnClick="@(() => AddSpellsByName(_multiSPellNameImport))" Variant="Variant.Filled" Color="Color.Primary">Add Spells</MudButton>
-    </MudCardActions>
-</MudCard>
+                        AutoGrow Lines="5" MaxLines="10" Variant="Variant.Outlined" @bind-Value="@_multiSPellNameImport"/>
+                </MudStack>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton OnClick="@(() => AddSpellsByName(_multiSPellNameImport))" Variant="Variant.Filled" Color="Color.Primary">Add Spells</MudButton>
+            </MudCardActions>
+        </MudCard>
 
 
-<MudCard>
-    <MudCardHeader>
-        <MudText Color="Color.Primary" Typo="Typo.h4">Spell Search</MudText>
-    </MudCardHeader>
-    
-    <MudCardContent>
-        <RuleCollection QueryableIntegers="Pathfinder2SpellDisplay.QueryableIntegers" QueryableStrings="Pathfinder2SpellDisplay.QueryableStrings" TSpell="Pathfinder2Spell" TDisplay="Pathfinder2SpellDisplay" RuleBuilder="@_ruleBuilder"/>
-    </MudCardContent>
-    
-    <MudCardActions>
-    </MudCardActions>
-</MudCard>
+        <MudCard Style="width: 100%">
+            <MudCardHeader>
+                <MudText Color="Color.Primary" Typo="Typo.h4">Search</MudText>
+            </MudCardHeader>
 
-<MudCard>
-    <MudCardContent>
-        <SpellGrid @ref="@_mainSpellGrid" TDisplay="Pathfinder2SpellDisplay" TSpell="Pathfinder2Spell" Spells="_selectedSpells"></SpellGrid>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButtonGroup>
+            <MudCardContent>
+                <MudStack Spacing="1">
+                    <RuleCollection QueryableIntegers="Pathfinder2SpellDisplay.QueryableIntegers" QueryableStrings="Pathfinder2SpellDisplay.QueryableStrings" TSpell="Pathfinder2Spell" TDisplay="Pathfinder2SpellDisplay" RuleBuilder="@_ruleBuilder"/>
+                    <MudDivider DividerType="DividerType.Middle"/>
+                    <SpellGrid TSpell="Pathfinder2Spell" TDisplay="Pathfinder2SpellDisplay" Spells="@_ruleBuilderFoundSpells"></SpellGrid>
+                </MudStack>
+            </MudCardContent>
+
+            <MudCardActions>
+                <MudButtonGroup OverrideStyles="false">
+                    <MudButton OnClick="@SearchSpellsWithRuleBuilder" Variant="Variant.Filled" Color="Color.Success">Search Spells</MudButton>
+                    <MudButton OnClick="@AddSpellsFoundSpells" Variant="Variant.Filled" Color="Color.Success" Disabled="@(!_ruleBuilderFoundSpells.Any())">Add Spells</MudButton>
+                    <MudButton OnClick="() => _ruleBuilder = new AllRulesCollectionBuilder<Pathfinder2SpellDisplay>(Guid.NewGuid())" Variant="Variant.Filled" Color="Color.Error">Clear Rules</MudButton>
+                </MudButtonGroup>
+            </MudCardActions>
+        </MudCard></MudStack>
+
+    <MudCard>
+        <MudCardContent>
+            <SpellGrid @ref="@_mainSpellGrid" TDisplay="Pathfinder2SpellDisplay" TSpell="Pathfinder2Spell" Spells="_selectedSpells"></SpellGrid>
+        </MudCardContent>
+        <MudCardActions>
             <MudButtonGroup OverrideStyles="false">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ExportNames">Export</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled>Print</MudButton>
                 <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
             </MudButtonGroup>
-        </MudButtonGroup>
-    </MudCardActions>
-</MudCard>
+        </MudCardActions>
+    </MudCard></MudStack>
 
 
 @code {
@@ -94,6 +112,7 @@ Wish"
     private string _multiSPellNameImport = "";
     private SpellGrid<Pathfinder2Spell, Pathfinder2SpellDisplay>? _mainSpellGrid;
     private RulesCollectionBuilderBase<Pathfinder2SpellDisplay> _ruleBuilder = new AllRulesCollectionBuilder<Pathfinder2SpellDisplay>(Guid.NewGuid());
+    private ObservableCollection<Pathfinder2SpellDisplay> _ruleBuilderFoundSpells = [];
 
 
     private async Task<IEnumerable<Pathfinder2Spell>> LoadSpells(CancellationToken ctx = default)
@@ -187,7 +206,25 @@ Wish"
         var spells = await LoadSpells(ctx);
         return spells.Where(spell => Fuzz.Ratio(spellName, spell.Name) > 70).Take(5).OrderBy(spell => spell.Name);
     }
-    
+
+    private async Task SearchSpellsWithRuleBuilder()
+    {
+        var spells = LoadSpells();
+        var rule = _ruleBuilder.Build();
+        var foundSpells = (await spells).Select(spell => new Pathfinder2SpellDisplay(spell)).Where(display => rule(display)).ToImmutableArray();
+        _ruleBuilderFoundSpells = new ObservableCollection<Pathfinder2SpellDisplay>(foundSpells);
+    }
+
+
+    private void AddSpellsFoundSpells()
+    {
+        foreach (var spell in _ruleBuilderFoundSpells)
+        {
+            _selectedSpells.Add(spell);
+        }
+        _ruleBuilderFoundSpells.Clear();
+    }
+
 }
 
 <style>
