@@ -33,6 +33,10 @@ public sealed class Pathfinder2SpellDisplay: ISpellDisplay<Pathfinder2Spell>, IH
         
         new QueryableInfo<Pathfinder2SpellDisplay, string>("Traits", display => string.Join(" ", display.Spell.Traits)),
         new QueryableInfo<Pathfinder2SpellDisplay, string>("Components", display => string.Join(" ", display.Spell.Components)),
+        
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Bloodline", display => display.Spell.Bloodline?.ToStringFast() ?? ""),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Patron", display => display.Spell.PatronTheme?.ToStringFast() ?? ""),
+        new QueryableInfo<Pathfinder2SpellDisplay, string>("Traditions", display => string.Join(" ", display.Spell.Traditions.Select(tradition => tradition.ToStringFast())))
     ];
 
     public static IEnumerable<QueryableInfo<Pathfinder2SpellDisplay, int>> QueryableIntegers { get; } =
