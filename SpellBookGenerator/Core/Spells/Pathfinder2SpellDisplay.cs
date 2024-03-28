@@ -1,10 +1,11 @@
-﻿using Shared;
+﻿using System.Text.Json.Serialization;
+using Shared;
 
 namespace SpellBookGenerator.Core.Spells;
 
 public sealed class Pathfinder2SpellDisplay: ISpellDisplay<Pathfinder2Spell>, IHasQueryableStrings<Pathfinder2SpellDisplay>, IHasQueryableInters<Pathfinder2SpellDisplay>
 {
-    internal Pathfinder2SpellDisplay(Pathfinder2Spell spell)
+    public Pathfinder2SpellDisplay(Pathfinder2Spell spell)
     {
         Spell = spell;
         ArchivesOfNethysUrl = spell.NethysUrl;

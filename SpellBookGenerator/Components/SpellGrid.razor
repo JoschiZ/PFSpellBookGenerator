@@ -46,36 +46,35 @@
             </CellTemplate>
         </TemplateColumn>
         
+        <PropertyColumn Title="Range/Targets" Property="arg => arg.RangeDisplay"/>
+        <PropertyColumn Property="arg => arg.Spell.CastingTime" Title="Casting Time"/>
+        <PropertyColumn Required="false" Property="spell => spell.Spell.Duration"/>
+        
         @if (typeof(TDisplay) == typeof(Pathfinder1SpellDisplay))
         {
             <PropertyColumn T="Pathfinder1SpellDisplay" TProperty="string" Title="School" Property="arg => arg.SchoolDisplay"/>
-        }
-        
-        
-        <PropertyColumn Title="Range/Targets" Property="arg => arg.RangeDisplay"/>
-        
-        <PropertyColumn Property="arg => arg.Spell.CastingTime" Title="Casting Time"/>
-        <PropertyColumn Required="false" Property="spell => spell.Spell.Duration"/>
-
-        
-        
-        @if (typeof(TDisplay) == typeof(Pathfinder1SpellDisplay))
-        {
             <PropertyColumn T="Pathfinder1SpellDisplay" TProperty="string" Property="arg => arg.SpellResistDisplay" Title="Save/SR" Required="false"/>
             <PropertyColumn T="Pathfinder1SpellDisplay" TProperty="string" Required="false" Property="@(spell => spell.Spell.Components)"/>
         }
 
-        
+        @if (typeof(TDisplay) == typeof(Pathfinder2SpellDisplay))
+        {
+            <PropertyColumn IsEditable="false" T="Pathfinder2SpellDisplay" TProperty="string" Title="Traits" Property="@(arg => string.Join(", ", arg.Spell.Traits))"/>
+            <PropertyColumn IsEditable="false" T="Pathfinder2SpellDisplay" TProperty="string" Title="Components" Property="@(arg => string.Join(", ", arg.Spell.Components))"/>
+        }
+
+
+
         <PropertyColumn Property="arg => arg.Spell.ShortDescription" Title="Description"/>
         <TemplateColumn Filterable="false" Sortable="false" ShowColumnOptions="false" ShowFilterIcon="false">
             <CellTemplate>
-                <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Error" OnClick="() => UnselectSpell(context.Item)">Remove</MudButton>
-            </CellTemplate>
-        </TemplateColumn>
-        
-        <TemplateColumn Filterable="false" Sortable="false" ShowColumnOptions="false" ShowFilterIcon="false">
-            <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                
+                <MudButtonGroup OverrideStyles="false">
+                    @AdditionalButtons?.Invoke(context.Item)
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant="Variant.Filled" Color="Color.Success" OnClick="@context.Actions.StartEditingItemAsync"/>
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.RemoveCircleOutline" Variant="Variant.Filled" Color="Color.Error" OnClick="() => UnselectSpell(context.Item)" />
+                </MudButtonGroup>
+
             </CellTemplate>
         </TemplateColumn>
     </Columns >
@@ -95,6 +94,10 @@
 {
     [Parameter, EditorRequired]
     public required ObservableCollection<TDisplay> Spells { get; set; }
+    
+    [Parameter]
+    public RenderFragment<TDisplay>? AdditionalButtons { get; set; }
+    
     private MudDataGrid<TDisplay>? _spellGrid;
     private Dictionary<string, HashSet<TDisplay>> _filteredSpells = [];
     private FilterDefinition<TDisplay>? _filterDefinition;

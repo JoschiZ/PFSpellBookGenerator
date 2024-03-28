@@ -119,7 +119,11 @@ Wish"
         @if (_filterAddFoundSpells.Any())
         {
             <MudPaper>
-                <SpellGrid TDisplay="Pathfinder1SpellDisplay" TSpell="Pathfinder1Spell" Spells="_filterAddFoundSpells"></SpellGrid>
+                <SpellGrid TDisplay="Pathfinder1SpellDisplay" TSpell="Pathfinder1Spell" Spells="_filterAddFoundSpells">
+                    <AdditionalButtons>
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircleOutline" Variant="Variant.Filled" Color="Color.Success" OnClick="() => AddSingleSpell(context)"/>
+                    </AdditionalButtons>
+                </SpellGrid>
             </MudPaper>
         }
     </DialogContent>
@@ -262,5 +266,13 @@ Wish"
         var exportString = string.Join("\n", names);
         await JsService.CopyToClipboardAsync(exportString);
         SnackBar.Add("Names Copied!", Severity.Success);
+    }
+
+    private Task AddSingleSpell(Pathfinder1SpellDisplay spell)
+    {
+        _selectedSpells.Add(spell);
+        SnackBar.Add($"Added {spell.Spell.Name}", Severity.Success);
+        _filterAddFoundSpells.Remove(spell);
+        return Task.CompletedTask;
     }
 }

@@ -78,7 +78,11 @@ Wish"
                 <MudStack Spacing="1">
                     <RuleCollection QueryableIntegers="Pathfinder2SpellDisplay.QueryableIntegers" QueryableStrings="Pathfinder2SpellDisplay.QueryableStrings" TSpell="Pathfinder2Spell" TDisplay="Pathfinder2SpellDisplay" RuleBuilder="@_ruleBuilder"/>
                     <MudDivider DividerType="DividerType.Middle"/>
-                    <SpellGrid TSpell="Pathfinder2Spell" TDisplay="Pathfinder2SpellDisplay" Spells="@_ruleBuilderFoundSpells"></SpellGrid>
+                    <SpellGrid TSpell="Pathfinder2Spell" TDisplay="Pathfinder2SpellDisplay" Spells="@_ruleBuilderFoundSpells">
+                        <AdditionalButtons>
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircleOutline" Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => AddSingleSpellFromSearch(context))"/>
+                        </AdditionalButtons>
+                    </SpellGrid>
                 </MudStack>
             </MudCardContent>
 
@@ -223,6 +227,12 @@ Wish"
             _selectedSpells.Add(spell);
         }
         _ruleBuilderFoundSpells.Clear();
+    }
+
+    private void AddSingleSpellFromSearch(Pathfinder2SpellDisplay spell)
+    {
+        _selectedSpells.Add(spell);
+        _ruleBuilderFoundSpells.Remove(spell);
     }
 
 }
