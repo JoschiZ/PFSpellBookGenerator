@@ -49,6 +49,19 @@ main[b-ovxqg3ztgw] {
         padding-right: 1.5rem !important;
     }
 }
+/* /Pages/PF2Print.razor.rz.scp.css */
+
+
+
+
+@media print {
+    table[b-ck6ge0akvv] {
+        break-inside: avoid;
+    }
+    thead[b-ck6ge0akvv] {
+        display: table-header-group;
+    }
+}
 /* /Pages/Print.razor.rz.scp.css */
 
 

@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "SpellBookGenerator",
   "resources": {
-    "hash": "sha256-2Wkj+sh1VCHMnXSDLgR40Ax2G2SS2qh2ltPSyS1pScs=",
+    "hash": "sha256-8HCh0M/mKVeBbUAKdAW2wuR+7nCSQTOJTNPyuSYDAOw=",
     "jsModuleNative": {
       "dotnet.native.8.0.2.jgt5nhn140.js": "sha256-gPMK16QWoJSTxorlZJqcVtbBRTniIQWlLsJN2O4cJHg="
     },
@@ -39,8 +39,8 @@
       "MudBlazor.wasm": "sha256-/59RGuz7WFQXfQgpk+4OemrPyM4yvewMFjpg3m7qYCM=",
       "NetEscapades.EnumGenerators.Attributes.wasm": "sha256-IFtKZX6MxQIA342QkXrcmBNrBwOVlwj81QQbXuT97vQ=",
       "netstandard.wasm": "sha256-eFsZrmY3W67FGV1N343ixQBi8aAShBw9ED5NR+d9zv8=",
-      "Shared.wasm": "sha256-z+2mJABjCDShVv4SonuXm/h7gbnRIzz6p5yKC8KcQiE=",
-      "SpellBookGenerator.wasm": "sha256-EXEVJ2/VPf2YHM8ulbG5QZ5moiax8KlNNmc3aFFjKqs=",
+      "Shared.wasm": "sha256-e2t+SO/R6JcLF0luuqi3cNecA7WJJZs3GhL/IUqWwgg=",
+      "SpellBookGenerator.wasm": "sha256-rZKhCJbxxoBRtgrr3sJwII6CenLq6ncsqEVDaRZOPYc=",
       "System.Collections.Concurrent.wasm": "sha256-k8q+sF2TNV1pQ6edNzTC+xZggbqtIYfFUJazcLxSlds=",
       "System.Collections.Immutable.wasm": "sha256-3RwX5j9L0hYNPHFHMiNR57usw3MpBV6j4YwHueWkzi4=",
       "System.Collections.wasm": "sha256-TMUwKWaC0nh3sows8CcbcI6AyCc4gqvoL0cL9fzDM7s=",
