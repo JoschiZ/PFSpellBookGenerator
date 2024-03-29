@@ -11,13 +11,13 @@ public sealed class Pathfinder1SpellDisplay: ISpellDisplay<Pathfinder1Spell>, IH
 
     public Pathfinder1SpellDisplay(Pathfinder1Spell spell, CharacterClass.Pathfinder1 mainCharacterClass)
     {
+        MainCharacterClass = mainCharacterClass;
+        Spell = spell;
         CurrentSpellLevel = GetCurrentSpellLevel(spell);
         SchoolDisplay = GetSchoolDisplay(spell);
         RangeDisplay = spell.GetRangeDisplay();
         SpellResistDisplay = GetSpellResistDisplay(spell);
         ArchivesOfNethysUrl = $"https://aonprd.com/SpellDisplay.aspx?ItemName={spell.Name}";
-        Spell = spell;
-        MainCharacterClass = mainCharacterClass;
     }
 
     public string SpellResistDisplay { get; set; }
