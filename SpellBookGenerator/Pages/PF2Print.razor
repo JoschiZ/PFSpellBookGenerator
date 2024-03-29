@@ -1,0 +1,82 @@
+﻿@attribute [Route(Routes.Pathfinder2.Print)]
+@using Shared
+@using SpellBookGenerator.Core
+@using SpellBookGenerator.Core.Spells
+@layout EmptyLayout
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IJSRuntime Js
+@inject NavigationManager NavManager
+
+@foreach (var (grade, spellDisplays) in _spellByGrade)
+{
+    <table>
+        <caption style="caption-side: top; font-weight: bold; font-size: large">@grade</caption>
+        <thead>
+        <tr>
+            <th scope="col">Notes</th>
+            <th scope="col">Name</th>
+            <th scope="col">Range</th>
+            <th scope="col">Casting Time</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Traits</th>
+            <th scope="col">Components</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var spellDisplay in spellDisplays)
+        {
+            <tr>
+                <td>        </td>
+                <th scope="row">@spellDisplay.Spell.Name</th>
+                <td>@spellDisplay.RangeDisplay</td>
+                <td>@spellDisplay.Spell.CastingTime</td>
+                <td>@spellDisplay.Spell.Duration</td>
+                <td>@(string.Join(", ", spellDisplay.Spell.Traits))</td>
+                <td>@(string.Join(", ", spellDisplay.Spell.Components))</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+
+<style>
+    tr, th, td {
+        border-top: 1px solid rgb(160 160 160);
+    }
+</style>
+
+@code {
+    private Dictionary<int, List<Pathfinder2SpellDisplay>> _spellByGrade = new();
+
+    [SupplyParameterFromQuery] 
+    public string ReturnPath { get; set; } = "/";
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var spellData = await LocalStorage.GetItemAsync<List<Pathfinder2SpellDisplay>>("pf2spells");
+        if (spellData is null)
+        {
+            return;
+        }
+
+        _spellByGrade = spellData
+            .OrderBy(spell => spell.CurrentSpellLevel)
+            .ThenBy(spell => spell.Spell.Name)
+            .GroupBy(keySelector: spell => spell.CurrentSpellLevel)
+            .ToDictionary(
+                spells => spells.Key,
+                spells => spells.ToList());
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            // Hacky Way to open the print dialog with this pages content an without actually navigating to it.
+            await Js.InvokeVoidAsync("print");
+            NavManager.NavigateTo(ReturnPath);
+        }
+    }
+
+}
