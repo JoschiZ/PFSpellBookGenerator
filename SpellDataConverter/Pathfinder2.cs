@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using Shared;
 
 namespace SpellDataConverter;
@@ -41,13 +42,6 @@ internal static class Pathfinder2
         if (spells is null)
         {
             return;
-        }
-
-        var id = 0;
-        foreach (var spell in spells)
-        {
-            spell.Id = id;
-            id++;
         }
         
         var workingDirectory = Environment.CurrentDirectory;
@@ -93,5 +87,32 @@ internal static class Pathfinder2
         using var noTraditionWriter = new StreamWriter(noTraditionFile);
         noTraditionWriter.Write(JsonSerializer.Serialize(noTraditionSpells));
         noTraditionWriter.Close();
+    }
+
+    public static void Convert2()
+    {
+        var common = File.OpenRead("./input/common.json");
+        var uncommon = File.OpenRead("./input/notCommon.json");
+
+        var commonSpells = JsonSerializer.Deserialize<IEnumerable<AONPf2Spell>>(common)
+            .Select(AONToInternalMapper.ToPf2Spell);
+        
+        var uncommonSpells = JsonSerializer.Deserialize<IEnumerable<AONPf2Spell>>(uncommon)
+            .Select(AONToInternalMapper.ToPf2Spell);
+
+        var allSpells = commonSpells.Concat(uncommonSpells);
+        
+        var workingDirectory = Environment.CurrentDirectory;
+        var projectDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
+        var outputPath = $"{projectDirectory}/output/pathfinder2";
+        Directory.CreateDirectory(outputPath);
+
+        using var allSpellsStream = File.OpenWrite($"{outputPath}/AllSpells.json");
+        using var allSpellsWriter = new StreamWriter(allSpellsStream);
+        var json = JsonSerializer.Serialize(allSpells, new JsonSerializerOptions()
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        });
+        allSpellsWriter.Write(json);
     }
 }

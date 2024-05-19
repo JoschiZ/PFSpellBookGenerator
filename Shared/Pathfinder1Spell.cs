@@ -12,7 +12,7 @@ public sealed class Pathfinder1Spell : ISpell
     [JsonPropertyName("SpellGrades")]
     public Levels Levels { get; set; } = new();
     public string Components { get; set; } = "";
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public string CastingTime { get; set; } = "";
     public string Range { get; set; } = "";

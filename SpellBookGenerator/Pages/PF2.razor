@@ -14,25 +14,18 @@
 
 <MudStack Spacing="3">
     <MudCard>
+        <MudCardHeader>
+            <MudButton OnClick="(() => _showFilter = !_showFilter)">
+                <MudText Color="Color.Primary" Typo="Typo.h4">Filter Settings</MudText>    
+            </MudButton>
+            
+        </MudCardHeader>
         <MudCardContent>
-            <MudStack Spacing="2">
-                <MudToggleGroup ValuesChanged="@OnSelectedClassesChanged" T="CharacterClass.Pathfinder2" SelectionMode="SelectionMode.MultiSelection">
-                    @foreach (var characterClass in Pathfinder2Extensions.GetValues())
-                    {
-                        <MudToggleItem T="CharacterClass.Pathfinder2" Value="characterClass">
-                            <MudText Class="toggle-item-text">@characterClass.ToStringFast()</MudText>
-                        </MudToggleItem>
-                    }
-                </MudToggleGroup>
-                <MudDivider DividerType="DividerType.Middle"/>
-                <MudToggleGroup @bind-Values="@_selectedTraditions" T="Tradition" SelectionMode="SelectionMode.MultiSelection">
-                    @foreach (var tradition in TraditionExtensions.GetValues().Where(tradition => tradition != Tradition.All))
-                    {
-                        <MudToggleItem T="Tradition" Value="tradition">
-                            <MudText Class="toggle-item-text">@tradition.ToStringFast()</MudText>
-                        </MudToggleItem>
-                    }
-                </MudToggleGroup></MudStack>
+            <MudCollapse Expanded="@_showFilter">
+                <MudStack Row Spacing="3">
+                    <MudSwitch Color="Color.Primary" @bind-Value="@_showLegacySpells" Label="Show legacy spells"/>
+                </MudStack>
+            </MudCollapse>
         </MudCardContent>
     </MudCard>
 
@@ -97,6 +90,7 @@ Wish"
             </MudCardActions>
         </MudCard></MudStack>
 
+
     <MudCard>
         <MudCardContent>
             <SpellGrid @ref="@_mainSpellGrid" TDisplay="Pathfinder2SpellDisplay" TSpell="Pathfinder2Spell" Spells="_selectedSpells"></SpellGrid>
@@ -108,7 +102,8 @@ Wish"
                 <MudButton OnClick="@(_selectedSpells.Clear)" Variant="Variant.Filled" Color="Color.Error">Clear List</MudButton>
             </MudButtonGroup>
         </MudCardActions>
-    </MudCard></MudStack>
+    </MudCard>
+</MudStack>
 
 
 @code {
@@ -119,31 +114,18 @@ Wish"
     private SpellGrid<Pathfinder2Spell, Pathfinder2SpellDisplay>? _mainSpellGrid;
     private RulesCollectionBuilderBase<Pathfinder2SpellDisplay> _ruleBuilder = new AllRulesCollectionBuilder<Pathfinder2SpellDisplay>(Guid.NewGuid());
     private ObservableCollection<Pathfinder2SpellDisplay> _ruleBuilderFoundSpells = [];
+    private bool _showLegacySpells;
+    private bool _showFilter = true;
 
 
     private async Task<IEnumerable<Pathfinder2Spell>> LoadSpells(CancellationToken ctx = default)
     {
         var spells = await SpellService.GetAllSpells(ctx);
 
-        List<Func<Pathfinder2Spell, bool>> rules = [];
-        if (_selectedClasses.Any())
-        {
-            bool SelectedClassRule(Pathfinder2Spell spell) => 
-                spell.Traits.Any(trait => Pathfinder2Extensions.TryParse(trait, out _, true, true));
-            rules.Add(SelectedClassRule);
-        }
-
-        if (_selectedTraditions.Any())
-        {
-            bool SelectedTraditionsRule(Pathfinder2Spell spell) =>
-                spell.Traditions.Contains(Tradition.All) ||
-                spell.Traditions.Intersect(_selectedTraditions).Any();
-            rules.Add(SelectedTraditionsRule);
-        }
-
-        return spells
-            .Where(spell => 
-                rules.Any(rule => rule(spell)));
+        spells = spells.Where(x => _showLegacySpells || x.IsRemastered);
+        
+        
+        return spells;
     }
 
     private void AddSelectedTradition(IEnumerable<Tradition> traditionsToAdd)

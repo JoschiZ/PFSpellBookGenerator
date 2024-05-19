@@ -20,6 +20,7 @@
             <th scope="col">Duration</th>
             <th scope="col">Traits</th>
             <th scope="col">Components</th>
+            <th scope="col">Description</th>
         </tr>
         </thead>
         <tbody>
@@ -33,6 +34,7 @@
                 <td>@spellDisplay.Spell.Duration</td>
                 <td>@(string.Join(", ", spellDisplay.Spell.Traits))</td>
                 <td>@(string.Join(", ", spellDisplay.Spell.Components))</td>
+                <td>@spellDisplay.Spell.ShortDescription</td>
             </tr>
         }
         </tbody>

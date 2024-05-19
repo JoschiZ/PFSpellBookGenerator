@@ -61,6 +61,7 @@
         {
             <PropertyColumn IsEditable="false" T="Pathfinder2SpellDisplay" TProperty="string" Title="Traits" Property="@(arg => string.Join(", ", arg.Spell.Traits))"/>
             <PropertyColumn IsEditable="false" T="Pathfinder2SpellDisplay" TProperty="string" Title="Components" Property="@(arg => string.Join(", ", arg.Spell.Components))"/>
+            <PropertyColumn T="Pathfinder2SpellDisplay" TProperty="string" Title="Rarity" Property="@(arg => arg.Spell.Rarity )"/>
         }
 
 
