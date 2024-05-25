@@ -18,13 +18,19 @@
             <MudButton OnClick="(() => _showFilter = !_showFilter)">
                 <MudText Color="Color.Primary" Typo="Typo.h4">Filter Settings</MudText>    
             </MudButton>
-            
         </MudCardHeader>
         <MudCardContent>
             <MudCollapse Expanded="@_showFilter">
                 <MudStack Row Spacing="3">
                     <MudSwitch Color="Color.Primary" @bind-Value="@_showLegacySpells" Label="Show legacy spells"/>
                 </MudStack>
+
+                <MudToggleGroup @bind-Values="_selectedTraditions" T="Tradition" SelectionMode="SelectionMode.MultiSelection">
+                    @foreach (var tradition in Enum.GetValues<Tradition>().Where(x => x != Tradition.All))
+                    {
+                        <MudToggleItem Text="@tradition.ToStringFast()" Value="tradition"></MudToggleItem>
+                    }
+                </MudToggleGroup>
             </MudCollapse>
         </MudCardContent>
     </MudCard>
@@ -123,23 +129,14 @@ Wish"
         var spells = await SpellService.GetAllSpells(ctx);
 
         spells = spells.Where(x => _showLegacySpells || x.IsRemastered);
-        
+        var selectedSet = _selectedTraditions.ToHashSet();
+        spells = spells.Where(x => x.Traditions.Overlaps(selectedSet));
         
         return spells;
     }
 
-    private void AddSelectedTradition(IEnumerable<Tradition> traditionsToAdd)
-    {
-        var currentTraditions = traditionsToAdd.ToList();
-        currentTraditions.AddRange(_selectedTraditions);
-        _selectedTraditions = currentTraditions;
-    }
-    
-    private void OnSelectedClassesChanged(IEnumerable<CharacterClass.Pathfinder2> selectedClassesEnumerable)
-    {
-        _selectedClasses = selectedClassesEnumerable.ToList();
-        AddSelectedTradition(_selectedClasses.Select(selectedClass => selectedClass.GetTradition()));
-    }
+
+
     
     private async Task ExportNames()
     {

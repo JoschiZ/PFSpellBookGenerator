@@ -5,7 +5,6 @@ namespace Shared;
 
 public interface ISpell
 {
-    public Guid Id { get; set; }
     public string Name { get; set; }
     public string CastingTime { get; set; }
     public string Range { get; set; }

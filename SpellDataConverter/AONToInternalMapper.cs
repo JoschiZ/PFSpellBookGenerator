@@ -9,15 +9,28 @@ internal sealed class AONToInternalMapper
 
         if (!PatronThemeExtensions.TryParse(aonSpell.PatronTheme, out var patronTheme)) ;
         if (!BloodlineExtensions.TryParse(aonSpell.Bloodline, out var bloodline)) ;
-        
+
+        List<Tradition> parsedTraditions = [];
+        foreach (var traditionString in aonSpell.Tradition.Split(',').Select(x => x.Trim()))
+        {
+            if (Enum.TryParse<Tradition>(traditionString, out var tradition))
+            {
+                parsedTraditions.Add(tradition);
+            }
+        }
+
+        if (parsedTraditions.Count == 0)
+        {
+            parsedTraditions.Add(Tradition.NoTradition);
+        }
         
         var newSpell = new Pathfinder2Spell()
         {
-            NethysUrl = aonSpell.Url,
+            NethysUrl = "https://2e.aonprd.com" + aonSpell.Url,
             Traits = aonSpell.Trait.Split(',').Select(x => x.Trim()),
             Type = aonSpell.SpellType,
             Level = int.Parse(aonSpell.Level),
-            Traditions = aonSpell.Tradition.Split(',').Select(x => x.Trim()),
+            Traditions = parsedTraditions.ToHashSet(),
             Name = aonSpell.Name,
             CastingTime = aonSpell.Actions,
             Range = aonSpell.Range,

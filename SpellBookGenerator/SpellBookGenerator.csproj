@@ -41,6 +41,7 @@
       <None Include="wwwroot\data\pathfinder1\Shaman.json" />
       <None Include="wwwroot\data\pathfinder1\Skald.json" />
       <None Include="wwwroot\data\pathfinder1\Sorcerer.json" />
+      <None Include="wwwroot\data\pathfinder1\sources.json" />
       <None Include="wwwroot\data\pathfinder1\Spiritualist.json" />
       <None Include="wwwroot\data\pathfinder1\Summoner.json" />
       <None Include="wwwroot\data\pathfinder1\Witch.json" />
