@@ -37,7 +37,7 @@
                 }
             </MudSelect>
 
-            <MudSelect T="SourceFile" ToStringFunc="file => file.Name" Variant="Variant.Filled" Dense Margin="Margin.Dense" MultiSelection HelperText="Source Books" @bind-SelectedValues="@_selectedSources">
+            <MudSelect SelectAll @ref="@_sourceSelect" T="SourceFile" ToStringFunc="file => file.Name" Variant="Variant.Filled" Dense Margin="Margin.Dense" MultiSelection HelperText="Source Books" @bind-SelectedValues="@_selectedSources">
                 @foreach (var sourceFile in _sourceFiles)
                 {
                     <MudSelectItem T="SourceFile" Value="sourceFile">
@@ -45,6 +45,9 @@
                     </MudSelectItem>
                 }
             </MudSelect>
+            <MudButtonGroup VerticalAlign="true">
+                <MudButton OnClick="() => _selectedSources = _sourceFiles.TakeWhile(x => x.SortPriority > 0)">Base Books</MudButton>
+            </MudButtonGroup>
         </MudStack>
 
     </MudCardContent>
@@ -158,10 +161,12 @@ Wish"
     private SpellGrid<Pathfinder1Spell, Pathfinder1SpellDisplay>? _spellGrid;
     private IEnumerable<SourceFile> _sourceFiles = [];
     private IEnumerable<SourceFile> _selectedSources = [];
+    private MudSelect<SourceFile>? _sourceSelect;
 
     protected override async Task OnInitializedAsync()
     {
         _sourceFiles = await SourceService.GetSourceFilesAsync();
+        _selectedSources = _sourceFiles.Take(1);
 
         if (await LocalStorage.ContainKeyAsync("spells"))
         {
