@@ -32,6 +32,7 @@ internal sealed class BloodlineConverter : JsonConverter<Bloodline>
     public override Bloodline Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var value = reader.GetString() ?? "";
+        
 
         if (BloodlineExtensions.TryParse(value, out var bloodline, true, true))
         {

@@ -41,10 +41,12 @@
       <None Include="wwwroot\data\pathfinder1\Shaman.json" />
       <None Include="wwwroot\data\pathfinder1\Skald.json" />
       <None Include="wwwroot\data\pathfinder1\Sorcerer.json" />
+      <None Include="wwwroot\data\pathfinder1\sources.json" />
       <None Include="wwwroot\data\pathfinder1\Spiritualist.json" />
       <None Include="wwwroot\data\pathfinder1\Summoner.json" />
       <None Include="wwwroot\data\pathfinder1\Witch.json" />
       <None Include="wwwroot\data\pathfinder1\Wizard.json" />
+      <None Include="wwwroot\data\pathfinder2\AllSpells.json" />
     </ItemGroup>
 
     <ItemGroup>
@@ -54,6 +56,19 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Bard.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Champion.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Cleric.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Druid.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Magus.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Monk.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Oracle.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Psychic.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Ranger.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Sorcerer.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Summoner.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Witch.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\pathfinder2\classes\Wizard.json" />
     </ItemGroup>
 
 </Project>

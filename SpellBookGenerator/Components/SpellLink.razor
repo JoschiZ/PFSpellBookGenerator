@@ -1,7 +1,7 @@
 ﻿@using SpellBookGenerator.Core.Spells
 @typeparam TSpell where TSpell: Shared.ISpell
 
-<MudLink Href="@SpellDisplay.ArchivesOfNethysUrl" Target="_blank">@SpellDisplay.Spell.Name</MudLink>
+<MudLink Href="@(SpellDisplay.ArchivesOfNethysUrl)" Target="_blank">@SpellDisplay.Spell.Name</MudLink>
 
 @code {
     [Parameter, EditorRequired]
