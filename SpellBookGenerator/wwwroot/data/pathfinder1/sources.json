@@ -2,7 +2,7 @@
   {
     "Name": "Advanced Class Guide",
     "InternalName": "Advanced Class Guide",
-    "SortPriority": 1
+    "SortPriority": 0
   },
   {
     "Name": "Advanced Class Origins",
@@ -12,7 +12,7 @@
   {
     "Name": "Advanced Race Guide",
     "InternalName": "Advanced Race Guide",
-    "SortPriority": 0
+    "SortPriority": 1
   },
   {
     "Name": "Adventurer\u0027s Armory 2",
@@ -230,9 +230,9 @@
     "SortPriority": 0
   },
   {
-    "Name": "APG",
+    "Name": "Advanced Player’s Guide",
     "InternalName": "APG",
-    "SortPriority": 0
+    "SortPriority": 2
   },
   {
     "Name": "Aquatic Adventures",
@@ -557,7 +557,7 @@
   {
     "Name": "Mythic Adventures",
     "InternalName": "Mythic Adventures",
-    "SortPriority": 0
+    "SortPriority": 1
   },
   {
     "Name": "Mythic Origins",
@@ -567,7 +567,7 @@
   {
     "Name": "Occult Adventures",
     "InternalName": "Occult Adventures",
-    "SortPriority": 0
+    "SortPriority": 1
   },
   {
     "Name": "Occult Mysteries",
@@ -637,7 +637,7 @@
   {
     "Name": "PFRPG Core",
     "InternalName": "PFRPG Core",
-    "SortPriority": 0
+    "SortPriority": 3
   },
   {
     "Name": "PFS S3-09",
@@ -742,17 +742,17 @@
   {
     "Name": "Ultimate Combat",
     "InternalName": "Ultimate Combat",
-    "SortPriority": 0
+    "SortPriority": 1
   },
   {
     "Name": "Ultimate Intrigue",
     "InternalName": "Ultimate Intrigue",
-    "SortPriority": 0
+    "SortPriority": 1
   },
   {
     "Name": "Ultimate Magic",
     "InternalName": "Ultimate Magic",
-    "SortPriority": 0
+    "SortPriority": 1
   },
   {
     "Name": "Ultimate Wilderness",
