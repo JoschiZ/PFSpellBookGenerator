@@ -33,6 +33,7 @@
     <ItemGroup>
       <Folder Include="output\" />
       <Folder Include="output\pathfinder1\" />
+      <Folder Include="output\pathfinder2\" />
     </ItemGroup>
 
     <ItemGroup>

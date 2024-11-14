@@ -91,16 +91,16 @@ internal static class Pathfinder2
 
     public static void Convert2()
     {
-        var common = File.OpenRead("./input/common.json");
-        var uncommon = File.OpenRead("./input/notCommon.json");
+        var all = File.OpenRead("./PF2Spells.json");
+        //var uncommon = File.OpenRead("./input/notCommon.json");
 
-        var commonSpells = JsonSerializer.Deserialize<IEnumerable<AONPf2Spell>>(common)
+        var allSpells = JsonSerializer.Deserialize<IEnumerable<AONPf2Spell>>(all)
             .Select(AONToInternalMapper.ToPf2Spell);
         
-        var uncommonSpells = JsonSerializer.Deserialize<IEnumerable<AONPf2Spell>>(uncommon)
-            .Select(AONToInternalMapper.ToPf2Spell);
+        //var uncommonSpells = JsonSerializer.Deserialize<IEnumerable<AONPf2Spell>>(uncommon)
+        //    .Select(AONToInternalMapper.ToPf2Spell);
 
-        var allSpells = commonSpells.Concat(uncommonSpells);
+        //var allSpells = commonSpells.Concat(uncommonSpells);
         
         var workingDirectory = Environment.CurrentDirectory;
         var projectDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;

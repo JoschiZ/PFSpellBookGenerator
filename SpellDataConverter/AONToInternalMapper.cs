@@ -39,11 +39,13 @@ internal sealed class AONToInternalMapper
             Duration = aonSpell.Duration,
             SavingThrow = aonSpell.SavingThrow,
             ShortDescription = aonSpell.Summary,
+            DescriptionFormatted = aonSpell.Description,
             Components = aonSpell.Component.Split(',').Select(x => x.Trim()),
             Bloodline = aonSpell.Bloodline,
             PatronTheme = aonSpell.PatronTheme,
             Rarity = aonSpell.Rarity,
-            IsRemastered = IsRemastered(aonSpell.Source)
+            IsRemastered = IsRemastered(aonSpell.Source),
+            Source = aonSpell.Source,
         };
 
         return newSpell;
@@ -52,6 +54,12 @@ internal sealed class AONToInternalMapper
     private static bool IsRemastered(string source)
     {
         return source.Contains("Player Core", StringComparison.InvariantCultureIgnoreCase) ||
-               source.Contains("GM Core", StringComparison.InvariantCultureIgnoreCase);
+               source.Contains("GM Core", StringComparison.InvariantCultureIgnoreCase) ||
+               source.Contains("Player Core 2", StringComparison.InvariantCultureIgnoreCase) ||
+               source.Contains("Howl of the Wild", StringComparison.InvariantCultureIgnoreCase) ||
+               source.Contains("Tian Xia World Guide", StringComparison.InvariantCultureIgnoreCase) ||
+               source.Contains("Monster Core", StringComparison.InvariantCultureIgnoreCase) ||
+               source.Contains("Pathfinder #200: Seven Dooms for Sandpoint", StringComparison.InvariantCultureIgnoreCase) ||
+               source.Contains("Wake the Dead #5", StringComparison.InvariantCultureIgnoreCase);
     }
 }

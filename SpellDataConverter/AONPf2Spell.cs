@@ -107,6 +107,9 @@ internal sealed class AONPf2Spell
 
         [JsonPropertyName("summary")]
         public string Summary { get; set; }
+        
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
 
         [JsonPropertyName("url")]
         public string Url { get; set; }

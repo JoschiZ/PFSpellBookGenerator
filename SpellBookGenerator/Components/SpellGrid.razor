@@ -62,8 +62,13 @@
             <PropertyColumn IsEditable="false" T="Pathfinder2SpellDisplay" TProperty="string" Title="Traits" Property="@(arg => string.Join(", ", arg.Spell.Traits))"/>
             <PropertyColumn IsEditable="false" T="Pathfinder2SpellDisplay" TProperty="string" Title="Components" Property="@(arg => string.Join(", ", arg.Spell.Components))"/>
             <PropertyColumn T="Pathfinder2SpellDisplay" TProperty="string" Title="Rarity" Property="@(arg => arg.Spell.Rarity )"/>
+            <PropertyColumn T="Pathfinder2SpellDisplay" TProperty="string" Title="Source" Property="@(arg => arg.Spell.Source)">
+                <CellTemplate>
+                    @(new MarkupString(context.Item.Spell.Source))
+                </CellTemplate>
+            </PropertyColumn>
         }
-
+        
 
 
         <PropertyColumn Property="arg => arg.Spell.ShortDescription" Title="Description"/>
