@@ -11,6 +11,7 @@
 @inject ISnackbar Snackbar
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavigationManager
+@inject LoadingService LoadingService
 
 <MudStack Spacing="3">
     <MudCard>
@@ -215,6 +216,24 @@ Wish"
         _selectedSpells.Add(spell);
         Snackbar.Add($"Added {spell.Spell.Name}", Severity.Success);
         _ruleBuilderFoundSpells.Remove(spell);
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (await LocalStorage.ContainKeyAsync("pf2spells"))
+        {
+            var spellsTask = LocalStorage.GetItemAsync<List<Pathfinder2SpellDisplay>>("pf2spells");
+            var spells = await LoadingService.ShowAsync("Loading Spells", () => spellsTask);
+            if (spells is null)
+            {
+                return;
+            }
+
+            foreach (var spell in spells)
+            {
+                _selectedSpells.Add(spell);
+            }
+        }
     }
 
     private async Task GoToPrint()
