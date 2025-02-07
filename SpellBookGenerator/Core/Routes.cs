@@ -2,7 +2,8 @@
 
 internal static class Routes
 {
-    public const string Home = "/";
+    
+    public const string Home = "";
     
     internal static class Pathfinder2
     {
