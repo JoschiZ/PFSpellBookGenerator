@@ -7,7 +7,7 @@ internal static class Routes
     internal static class Pathfinder2
     {
         public const string Builder = "pf2";
-        public const string Print = "/print";
+        public const string Print = Builder + "/print";
     }
     
     internal static class Pathfinder1
